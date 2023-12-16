@@ -1,0 +1,14 @@
+{
+    "name": "FakeProfileThemesAndEffects",
+    "description": "Allows profile theming and the usage of profile effects by hiding the colors and effect ID in your About Me using invisible, zero-width characters",
+    "authors": [
+        {
+            "name": "ryan",
+            "id": "479403382994632704"
+        }
+    ],
+    "main": "src/index.ts",
+    "vendetta": {
+        "icon": "ic_profile_24px"
+    }
+}
