@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@lib/*": ["src/lib/*"],
+            "@patches/*": ["src/patches/*"],
+            "@ui/*": ["src/ui/*"]
+        }
+    }
+}
