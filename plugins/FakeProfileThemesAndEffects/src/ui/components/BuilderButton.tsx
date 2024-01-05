@@ -35,7 +35,7 @@ export default ({ label, fgColor, bgColor, onPress, children }: {
                     !!children && { borderWidth: 0 }
                 ]}
             >
-                {children || (
+                {children || bgColor == null && (
                     <Svg
                         fill={fgColor}
                         width="40%"
