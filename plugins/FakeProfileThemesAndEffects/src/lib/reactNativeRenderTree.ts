@@ -1,6 +1,8 @@
 import { isIterable, isNonNullObject, OmitCallSignature } from "@lib/utils";
 
 export namespace RN {
+    export type Fragment<P extends object = object> = Element<P, symbol>;
+
     export interface ConsumerProps<T = unknown> {
         children: (value: T) => Node;
     }
@@ -38,7 +40,7 @@ export namespace RN {
 
     export type ComponentType<P extends object = object> = ComponentClass<P> | FunctionComponent<P>;
 
-    export type ElementType<P extends object = object> = ComponentType<P> | ConsumerType | ProviderType | ForwardRefType<unknown, P> | MemoType<ElementType<P>>;
+    export type ElementType<P extends object = object> = ComponentType<P> | symbol | ConsumerType | ProviderType | ForwardRefType<unknown, P> | MemoType<ElementType<P>>;
 
     export interface Element<P extends object = object, T extends ElementType = ElementType> {
         type: T;
@@ -46,9 +48,7 @@ export namespace RN {
         key: React.Key | null;
     }
 
-    export type Fragment = Iterable<Node>;
-
-    export type Node = Element | string | number | Fragment | boolean | null | undefined;
+    export type Node = Iterable<Node> | Element | string | number | boolean | null | undefined;
 
     export type PropsWithChildren<P extends object = object> = P & { children: Node };
 
@@ -68,19 +68,21 @@ export function isElementWithChildren<T extends RN.Element>(arg: T | RN.Element<
     return "children" in arg.props;
 }
 
-export function isProviderType(arg: RN.ElementType): arg is RN.ProviderType {
+export function isProviderType(arg: Exclude<RN.ElementType, symbol>): arg is RN.ProviderType {
     return "_context" in arg;
 }
 
-export function isForwardRefType(arg: RN.ElementType): arg is RN.ForwardRefType {
+export function isForwardRefType(arg: Exclude<RN.ElementType, symbol>): arg is RN.ForwardRefType {
     return "render" in arg;
 }
 
-export function isMemoType(arg: RN.ElementType): arg is RN.MemoType {
+export function isMemoType(arg: Exclude<RN.ElementType, symbol>): arg is RN.MemoType {
     return "type" in arg;
 }
 
 export function getComponentNameFromType(type: RN.ElementType) {
+    if (typeof type === "symbol")
+        return Symbol.keyFor(type) || null;
     if (typeof type === "function")
         return type.displayName || type.name || null;
     if (isProviderType(type))

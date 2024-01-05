@@ -3,7 +3,6 @@ import { after } from "@vendetta/patcher";
 import { storage } from "@vendetta/plugin";
 
 import { findParentInTree, getComponentNameFromType, isElement, RN } from "@lib/reactNativeRenderTree";
-import type { Theme } from "@ui/color";
 import Builder from "@ui/components/Builder";
 
 const GuildProfileEditFormModule = findByName("GuildProfileEditForm", false);
@@ -20,11 +19,6 @@ export default () => after("default", GuildProfileEditFormModule, (_: any, tree:
             return false;
         }));
     if (parent)
-        (parent.props.children as RN.Node[]).splice(2, 0,
-            <Builder
-                theme={(parent.props as any).theme as Theme}
-                guildId={guildId}
-            />
-        );
+        (parent.props.children as RN.Node[]).splice(2, 0, <Builder guildId={guildId} />);
     return tree;
 });

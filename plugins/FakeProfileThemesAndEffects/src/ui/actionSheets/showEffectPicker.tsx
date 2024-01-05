@@ -1,5 +1,5 @@
 import FluxDispatcher from "@lib/FluxDispatcher";
-import { ProfileEffect, ProfileEffectRecord, USER_PROFILE_EFFECTS_URL } from "@lib/profileEffects";
+import { ProfileEffect, USER_PROFILE_EFFECTS_URL } from "@lib/profileEffects";
 import RestAPI from "@lib/RestAPI";
 import UserStore from "@lib/stores/UserStore";
 import { hideActionSheet, showActionSheet } from "@ui/actionSheets";
@@ -12,6 +12,8 @@ export default (onSelect: (effect: ProfileEffect | null) => void, currentEffectI
     RestAPI.get({ url: USER_PROFILE_EFFECTS_URL })
         .then(res => {
             const effects: ProfileEffect[] = res.body.profile_effect_configs;
+            if (!effects) return showErrorToast("Unable to fetch the list of profile effects from Discord's API.");
+
             const user = UserStore.getCurrentUser();
             const onClose = (payload: any) => {
                 if (payload.key === SHEET_KEY) {
@@ -20,16 +22,17 @@ export default (onSelect: (effect: ProfileEffect | null) => void, currentEffectI
                 }
             };
             FluxDispatcher.subscribe("HIDE_ACTION_SHEET", onClose);
+
             showActionSheet({
                 content: (
                     <EffectPickerActionSheet
-                        effects={effects.map(e => ({ items: new ProfileEffectRecord({ id: e.id }) }))}
-                        onSelect={effectRecord => {
-                            onSelect(effectRecord && effects.find(e => e.id === effectRecord.id)!);
+                        effects={effects}
+                        onSelect={effect => {
+                            onSelect(effect);
                             hideActionSheet(SHEET_KEY);
                         }}
                         user={user}
-                        currentEffect={currentEffectId ? new ProfileEffectRecord({ id: currentEffectId }) : null}
+                        currentEffectId={currentEffectId}
                     />
                 ),
                 key: SHEET_KEY

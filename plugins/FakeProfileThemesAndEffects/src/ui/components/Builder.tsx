@@ -1,40 +1,36 @@
-import { findByProps } from "@vendetta/metro";
 import { React } from "@vendetta/metro/common";
-import { getAssetIDByName } from "@vendetta/ui/assets";
 import { showToast } from "@vendetta/ui/toasts";
 
 import FluxDispatcher from "@lib/FluxDispatcher";
 import { buildFPTE } from "@lib/fpte";
-import type { ProfileEffect } from "@lib/profileEffects";
+import { ProfileEffect } from "@lib/profileEffects";
 import UserStore from "@lib/stores/UserStore";
 import { previewConfig } from "@patches/patchUseProfileThemeColors";
 import { showColorPicker, showEffectPicker } from "@ui/actionSheets";
-import { resolveSemanticColor, semanticColors, Theme, useAvatarColors } from "@ui/color";
-import { BuilderButton, Button, Image, View } from "@ui/components";
+import { resolveSemanticColor, semanticColors, useAvatarColors, useThemeContext } from "@ui/color";
+import { BuilderButton, Button, StaticEffect, View } from "@ui/components";
 import { FormCardSection, FormSwitchRow } from "@ui/components/forms";
 import { copyWithToast } from "@ui/toasts";
 
 const { useEffect, useMemo, useState } = React;
 
-const SAMPLE_PROFILE_SMALL: number | undefined = getAssetIDByName("sample-profile-small");
-const PROFILE_EFFECT_WH_RATIO: number | undefined = findByProps("DEFAULT_PROFILE_EFFECT_WH_RATIO")?.DEFAULT_PROFILE_EFFECT_WH_RATIO;
-
 function updatePreview() {
     FluxDispatcher.dispatch({ type: "USER_SETTINGS_ACCOUNT_SUBMIT_SUCCESS" });
 }
 
-export default ({ theme, guildId }: {
-    theme?: Theme | undefined;
-    guildId?: string | undefined;
-}) => {
+export default ({ guildId }: { guildId?: string | undefined; }) => {
     const [primaryColor, setPrimaryColor] = useState(-1);
     const [accentColor, setAccentColor] = useState(-1);
     const [effect, setEffect] = useState<ProfileEffect | null>(null);
     const [showPreview, setShowPreview] = useState(true);
     const [buildLegacy, setBuildLegacy] = useState(false);
 
-    const avatarColors = useAvatarColors(UserStore.getCurrentUser().getAvatarURL(guildId, 80), "#41434a", false);
-    const fgColor = useMemo(() => resolveSemanticColor(theme ?? "dark", semanticColors.HEADER_SECONDARY), [theme]);
+    const theme = useThemeContext().theme;
+    const [fgColor, fillerColor] = useMemo(() => [
+        resolveSemanticColor(theme, semanticColors.HEADER_SECONDARY),
+        resolveSemanticColor(theme, semanticColors.BACKGROUND_ACCENT)
+    ], [theme]);
+    const avatarColors = useAvatarColors(UserStore.getCurrentUser().getAvatarURL(guildId, 80), fillerColor, false);
 
     useEffect(() => () => {
         previewConfig.primaryColor = -1;
@@ -89,27 +85,15 @@ export default ({ theme, guildId }: {
                     label="Effect"
                     onPress={() => showEffectPicker(effect => setEffect(effect), effect?.id)}
                 >
-                    {effect && [
-                        <Image
-                            resizeMode="cover"
-                            source={SAMPLE_PROFILE_SMALL}
+                    {effect && (
+                        <StaticEffect
+                            effect={effect}
                             style={{
                                 width: "100%",
                                 height: "100%"
                             }}
-                        />,
-                        <Image
-                            alt={effect.accessibilityLabel}
-                            resizeMethod="resize"
-                            resizeMode="cover"
-                            source={{ uri: effect.thumbnailPreviewSrc }}
-                            style={{
-                                position: "absolute",
-                                width: "100%",
-                                aspectRatio: PROFILE_EFFECT_WH_RATIO
-                            }}
                         />
-                    ]}
+                    )}
                 </BuilderButton>
                 <View
                     style={{
