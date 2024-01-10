@@ -7,6 +7,7 @@
         "esModuleInterop": true,
         "jsx": "react-native",
         "strict": true,
+        "exactOptionalPropertyTypes": true,
         "allowJs": true
     },
     "include": ["plugins", "node_modules/vendetta-types"]

@@ -2,6 +2,7 @@ import FluxDispatcher from "@lib/FluxDispatcher";
 import { ProfileEffect, USER_PROFILE_EFFECTS_URL } from "@lib/profileEffects";
 import RestAPI from "@lib/RestAPI";
 import UserStore from "@lib/stores/UserStore";
+import { MarkedUser, shouldUsePreviewTheme } from "@patches/patchUseProfileThemeColors";
 import { hideActionSheet, showActionSheet } from "@ui/actionSheets";
 import EffectPickerActionSheet from "@ui/actionSheets/EffectPickerActionSheet";
 import { showErrorToast } from "@ui/toasts";
@@ -14,11 +15,11 @@ export default (onSelect: (effect: ProfileEffect | null) => void, currentEffectI
             const effects: ProfileEffect[] = res.body.profile_effect_configs;
             if (!effects) return showErrorToast("Unable to fetch the list of profile effects from Discord's API.");
 
-            const user = UserStore.getCurrentUser();
+            const user: MarkedUser = UserStore.getCurrentUser();
             const onClose = (payload: any) => {
                 if (payload.key === SHEET_KEY) {
                     FluxDispatcher.unsubscribe("HIDE_ACTION_SHEET", onClose);
-                    delete (user as any).__FPTE__;
+                    delete user[shouldUsePreviewTheme];
                 }
             };
             FluxDispatcher.subscribe("HIDE_ACTION_SHEET", onClose);
