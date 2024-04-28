@@ -103,7 +103,8 @@ type useProfileThemeColorsArgs = [
     } | undefined
 ];
 
-const funcParent = findByName("useProfileThemeColors", false) ?? {};
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const funcParent = findByName("useProfileThemeColors", false) ?? { default() { } };
 
 export const patchUseProfileThemeColors = () => after("default", funcParent, (args: any, origRet) => {
     const [user, _displayProfile, previewProps]: useProfileThemeColorsArgs = args;
