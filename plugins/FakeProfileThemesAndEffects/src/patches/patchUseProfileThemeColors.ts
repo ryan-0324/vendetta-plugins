@@ -103,7 +103,7 @@ type useProfileThemeColorsArgs = [
     } | undefined
 ];
 
-const funcParent = findByName("useProfileThemeColors", false);
+const funcParent = findByName("useProfileThemeColors", false) ?? {};
 
 export const patchUseProfileThemeColors = () => after("default", funcParent, (args: any, origRet) => {
     const [user, _displayProfile, previewProps]: useProfileThemeColorsArgs = args;
