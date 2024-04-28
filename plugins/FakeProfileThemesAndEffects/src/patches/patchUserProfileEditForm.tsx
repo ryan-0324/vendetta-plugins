@@ -1,13 +1,14 @@
 import { findByName } from "@vendetta/metro";
 import { after } from "@vendetta/patcher";
 import { storage } from "@vendetta/plugin";
+import React from "react";
 
-import { findParentInTree, getComponentNameFromType, isElement, RN } from "@lib/reactNativeRenderTree";
-import Builder from "@ui/components/Builder";
+import { findParentInTree, getComponentNameFromType, isElement, type RN } from "@lib/reactNativeRenderTree";
+import { Builder } from "@ui/components";
 
-const UserProfileEditFormModule = findByName("UserProfileEditForm", false);
+const funcParent = findByName("UserProfileEditForm", false);
 
-export default () => after("default", UserProfileEditFormModule, (_: any, tree: RN.Node) => {
+export const patchUserProfileEditForm = () => after("default", funcParent, (_args, tree: RN.Node) => {
     if (storage.hideBuilder) return tree;
     const parent = findParentInTree(tree, children =>
         Array.isArray(children) && children.some(child =>

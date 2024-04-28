@@ -1,29 +1,28 @@
-import { lodash, React } from "@vendetta/metro/common";
-import { getAssetIDByName } from "@vendetta/ui/assets";
-import type { ViewStyle } from "react-native";
+import { chunk } from "lodash";
+import React, { type ReactNode, useContext, useMemo, useState } from "react";
+import { View, type ViewStyle } from "react-native";
 
 import { HapticFeebackTypes, triggerHapticFeedback } from "@lib/haptics";
-import type { ProfileEffect } from "@lib/profileEffects";
-import { ActionSheet, BottomSheetScrollView } from "@ui/actionSheets";
-import type { EffectPickerActionSheetProps } from "@ui/actionSheets/EffectPickerActionSheet";
+import type { ProfileEffect } from "@lib/stores";
+import { BottomSheet, BottomSheetScrollView, type EffectPickerActionSheetProps } from "@ui/actionSheets";
+import { IMG_NONE } from "@ui/assets";
 import { resolveSemanticColor, semanticColors, useThemeContext } from "@ui/color";
-import { Button, FlashList, Icon, PressableOpacity, StaticEffect, Text, View } from "@ui/components";
+import { Button, FlashList, Icon, PressableOpacity, StaticEffect, Text } from "@ui/components";
 import { Radius, SafeAreaContext, Spacing, useWindowDimensions } from "@ui/length";
 
-const { useContext, useMemo, useState } = React;
-
-const IMG_NONE = getAssetIDByName("img_none");
 const ROW_SIZE = 3;
 
-function Item({ label, isSelected, size, colors, onPress, style, children }: {
+interface ItemProps {
     label: string;
     isSelected: boolean;
     size: number;
-    colors: string[];
+    colors: [bgColor: string, itemColor: string, selectedColor: string];
     onPress: () => void;
     style?: ViewStyle | undefined;
-    children: Exclude<React.ReactNode, number | string>;
-}) {
+    children: Exclude<ReactNode, number | string>;
+}
+
+function Item({ label, isSelected, size, colors, onPress, style, children }: ItemProps) {
     const [bgColor, itemColor, selectedColor] = colors;
 
     return (
@@ -55,12 +54,14 @@ function Item({ label, isSelected, size, colors, onPress, style, children }: {
     );
 }
 
-export default (props: EffectPickerActionSheetProps) => {
-    const [selectedId, setSelectedId] = useState(props.currentEffectId);
+export type FallbackEffectPickerActionSheetProps = Pick<EffectPickerActionSheetProps, "currentEffectId" | "effects" | "onSelect">;
+
+export function FallbackEffectPickerActionSheet({ currentEffectId, effects, onSelect }: FallbackEffectPickerActionSheetProps) {
+    const [selectedId, setSelectedId] = useState(currentEffectId);
     const [itemSize, setItemSize] = useState(0);
 
-    const theme = useThemeContext().theme;
-    const colors = useMemo(() => [
+    const { theme } = useThemeContext();
+    const colors: ItemProps["colors"] = useMemo(() => [
         resolveSemanticColor(theme, semanticColors.BACKGROUND_PRIMARY),
         resolveSemanticColor(theme, semanticColors.BACKGROUND_FLOATING),
         resolveSemanticColor(theme, semanticColors.BUTTON_OUTLINE_BRAND_BORDER_ACTIVE)
@@ -69,21 +70,23 @@ export default (props: EffectPickerActionSheetProps) => {
     const windowDimensions = useWindowDimensions();
     const safeArea = useContext(SafeAreaContext);
 
-    const effects = useMemo(() => {
-        const e: (ProfileEffect | null | undefined)[][] = lodash.chunk([null, ...props.effects], ROW_SIZE);
-        const l = e[e.length - 1];
-        while (l.length < 3) l.push(undefined);
-        return e;
-    }, [props.effects]);
+    const effectRows = useMemo(() => {
+        const effectChunks: (ProfileEffect | null | undefined)[][] = chunk([null, ...effects], ROW_SIZE);
+        const lastChunk = effectChunks[effectChunks.length - 1];
+        while (lastChunk.length < 3) lastChunk.push(undefined);
+        return effectChunks;
+    }, [effects]);
 
     return (
-        <ActionSheet
+        <BottomSheet
             transparentHeader={true}
             scrollable={true}
             startExpanded={true}
-            contentHeight={windowDimensions.height - safeArea.top}
+            startHeight={windowDimensions.height - safeArea.top}
         >
-            <BottomSheetScrollView>
+            <BottomSheetScrollView
+                scrollsToTop={false}
+            >
                 <View
                     style={{
                         flex: 1,
@@ -93,11 +96,11 @@ export default (props: EffectPickerActionSheetProps) => {
                     }}
                 >
                     <Text
-                        variant={"redesign/heading-18/bold"}
-                        color={"header-primary"}
+                        variant="redesign/heading-18/bold"
+                        color="header-primary"
                         style={{ margin: Spacing.PX_16 }}
                     >
-                        {props.currentEffectId ? "Change Effect" : "Add Profile Effect"}
+                        {currentEffectId ? "Change Effect" : "Add Profile Effect"}
                     </Text>
                     <View
                         style={{
@@ -110,7 +113,7 @@ export default (props: EffectPickerActionSheetProps) => {
                             color="header-primary"
                             style={{ textAlign: "center" }}
                         >
-                            {props.effects.find(e => e.id === selectedId)?.title ?? "None"}
+                            {effects.find(effect => effect.id === selectedId)?.config.title ?? "None"}
                         </Text>
                     </View>
                     <View
@@ -126,7 +129,7 @@ export default (props: EffectPickerActionSheetProps) => {
                             estimatedItemSize={98}
                             ItemSeparatorComponent={() => <View style={{ height: Spacing.PX_16 }} />}
                             contentContainerStyle={{ paddingHorizontal: Spacing.PX_4 }}
-                            data={effects}
+                            data={effectRows}
                             extraData={selectedId}
                             renderItem={({ item }) => (
                                 <View
@@ -137,51 +140,56 @@ export default (props: EffectPickerActionSheetProps) => {
                                         paddingHorizontal: Spacing.PX_16
                                     }}
                                 >
-                                    {item.map(effect => effect ? (
-                                        <Item
-                                            label={effect.accessibilityLabel}
-                                            isSelected={effect.id === selectedId}
-                                            size={itemSize}
-                                            colors={colors}
-                                            onPress={() => setSelectedId(effect.id)}
-                                        >
-                                            <StaticEffect effect={effect} />
-                                        </Item>
-                                    ) : effect === null ? (
-                                        <Item
-                                            label="None"
-                                            isSelected={!selectedId}
-                                            size={itemSize}
-                                            colors={colors}
-                                            onPress={() => setSelectedId(undefined)}
-                                            style={{
-                                                alignItems: "center",
-                                                justifyContent: "center"
-                                            }}
-                                        >
-                                            <Icon
-                                                source={IMG_NONE}
-                                                size={Icon.Sizes.LARGE}
-                                            />
-                                            <Text
-                                                variant={"text-sm/medium"}
-                                                color={"header-primary"}
-                                                style={{ marginTop: Spacing.PX_4 }}
+                                    {item.map(effect => effect
+                                        ? (
+                                            <Item
+                                                label={effect.config.accessibilityLabel}
+                                                isSelected={effect.id === selectedId}
+                                                size={itemSize}
+                                                colors={colors}
+                                                onPress={() => { setSelectedId(effect.id); }}
                                             >
-                                                None
-                                            </Text>
-                                        </Item>
-                                    ) : (
-                                        <View
-                                            style={{
-                                                width: itemSize,
-                                                height: itemSize
-                                            }}
-                                        />
-                                    ))}
+                                                <StaticEffect effect={effect.config} />
+                                            </Item>
+                                        )
+                                        : effect === null
+                                            ? (
+                                                <Item
+                                                    label="None"
+                                                    isSelected={!selectedId}
+                                                    size={itemSize}
+                                                    colors={colors}
+                                                    onPress={() => { setSelectedId(undefined); }}
+                                                    style={{
+                                                        alignItems: "center",
+                                                        justifyContent: "center"
+                                                    }}
+                                                >
+                                                    <Icon
+                                                        source={IMG_NONE}
+                                                        size={Icon.Sizes.LARGE}
+                                                    />
+                                                    <Text
+                                                        variant="text-sm/medium"
+                                                        color="header-primary"
+                                                        style={{ marginTop: Spacing.PX_4 }}
+                                                    >
+                                                        None
+                                                    </Text>
+                                                </Item>
+                                            )
+                                            : (
+                                                <View
+                                                    style={{
+                                                        width: itemSize,
+                                                        height: itemSize
+                                                    }}
+                                                />
+                                            )
+                                    )}
                                 </View>
                             )}
-                            onLayout={event => setItemSize((event.nativeEvent.layout.width - 64) / ROW_SIZE)}
+                            onLayout={event => { setItemSize((event.nativeEvent.layout.width - 64) / ROW_SIZE); }}
                         />
                     </View>
                 </View>
@@ -189,7 +197,7 @@ export default (props: EffectPickerActionSheetProps) => {
             <Button
                 text="Apply"
                 textStyle={{ fontSize: 16 }}
-                onPress={() => props.onSelect(props.effects.find(e => e.id === selectedId) ?? null)}
+                onPress={() => { onSelect(effects.find(effect => effect.id === selectedId)?.config ?? null); }}
                 style={{
                     position: "absolute",
                     right: 0,
@@ -201,6 +209,6 @@ export default (props: EffectPickerActionSheetProps) => {
                     borderRadius: Radius.round
                 }}
             />
-        </ActionSheet>
+        </BottomSheet>
     );
-};
+}

@@ -1,38 +1,121 @@
 import { findByName } from "@vendetta/metro";
 import { after } from "@vendetta/patcher";
+import { useState } from "react";
 
-import UserStore, { User } from "@lib/stores/UserStore";
-import { isNonNullObject } from "@lib/utils";
+import { FluxDispatcher } from "@lib/flux";
+import type { ProfileEffect, User, UserProfile } from "@lib/stores";
 
-export interface MarkedUser extends User {
-    [shouldUsePreviewTheme]?: undefined;
+function updatePreview() {
+    FluxDispatcher.dispatch({ type: "USER_SETTINGS_ACCOUNT_SUBMIT_SUCCESS" });
 }
 
-export const shouldUsePreviewTheme = Symbol();
+let showPreview = true;
+export function useShowPreview(initialState: typeof showPreview) {
+    const [state, setState] = useState(() => showPreview = initialState);
+    return [
+        state,
+        (preview: typeof showPreview) => {
+            setState(showPreview = preview);
+            updatePreview();
+        }
+    ] as const;
+}
 
-const pvCfg = {
-    primaryColor: -1,
-    accentColor: -1,
-    showPreview: true
-};
+let primaryColor: number | null = null;
+export function usePrimaryColor(initialState: typeof primaryColor) {
+    const [state, setState] = useState(() => primaryColor = initialState);
+    return [
+        state,
+        (color: typeof primaryColor) => {
+            setState(primaryColor = color);
+            if (showPreview) updatePreview();
+        }
+    ] as const;
+}
 
-export { pvCfg as previewConfig };
+let accentColor: number | null = null;
+export function useAccentColor(initialState: typeof accentColor) {
+    const [state, setState] = useState(() => accentColor = initialState);
+    return [
+        state,
+        (color: typeof accentColor) => {
+            setState(accentColor = color);
+            if (showPreview) updatePreview();
+        }
+    ] as const;
+}
 
-const useProfileThemeColorsModule = findByName("useProfileThemeColors", false);
+let profileEffect: ProfileEffect["config"] | null = null;
+export function useProfileEffect(initialState: typeof profileEffect) {
+    const [state, setState] = useState(() => profileEffect = initialState);
+    return [
+        state,
+        (effect: typeof profileEffect) => {
+            setState(profileEffect = effect);
+            if (showPreview) updatePreview();
+        }
+    ] as const;
+}
 
-export default () => after("default", useProfileThemeColorsModule, (args, originalReturn) => {
+export let previewUserId: string | undefined;
+
+export function setPreviewUserId(userId: typeof previewUserId) {
+    previewUserId = userId;
+}
+
+interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "bio" | "popoutAnimationParticleType" | "profileEffectId" | "pronouns" | "themeColors" | "userId"> {
+    _userProfile: UserProfile;
+    _guildMemberProfile: UserProfile | null;
+    guildId: string | undefined;
+    // __proto__ properties
+    readonly application: UserProfile["application"]; // Getter
+    readonly canEditThemes: boolean; // Getter
+    readonly canUsePremiumProfileCustomization: boolean; // Getter
+    readonly premiumGuildSince: UserProfile["premiumGuildSince"]; // Getter
+    readonly premiumSince: UserProfile["premiumSince"]; // Getter
+    readonly premiumType: UserProfile["premiumType"]; // Getter
+    readonly primaryColor: number | undefined; // Getter
+    // __proto__ methods
+    hasFullProfile: () => boolean;
+    hasPremiumCustomization: () => boolean;
+    hasThemeColors: () => boolean;
+    isUsingGuildMemberBanner: () => boolean;
+    isUsingGuildMemberBio: () => boolean;
+    isUsingGuildMemberPronouns: () => boolean;
+    getBadges: () => UserProfile["badges"];
+    getBannerURL: (props: { canAnimate: boolean; size?: number; }) => string | undefined;
+    getLegacyUsername: () => UserProfile["legacyUsername"];
+    getPreviewBanner: (bannerURL: string | null | undefined, canAnimate: boolean, size?: number | undefined) => UserProfile["banner"];
+    getPreviewBio: (bio: string | null | undefined) => {
+        value: UserProfile["bio"];
+        isUsingGuildValue: boolean;
+    };
+    getPreviewThemeColors: (pendingThemeColors?: UserProfile["themeColors"] | undefined) => Exclude<UserProfile["themeColors"], undefined>;
+}
+
+type useProfileThemeColorsArgs = [
+    user: User | null | undefined,
+    displayProfile: DisplayProfile | null | undefined,
+    previewProps?: {
+        pendingThemeColors: UserProfile["themeColors"] | undefined;
+        pendingAvatar?: User["avatar"] | null | undefined;
+        isPreview?: boolean;
+    } | undefined
+];
+
+const funcParent = findByName("useProfileThemeColors", false);
+
+export const patchUseProfileThemeColors = () => after("default", funcParent, (args: any, origRet) => {
+    const [user, _displayProfile, previewProps]: useProfileThemeColorsArgs = args;
     if (
-        args?.[0]?.id === UserStore.getCurrentUser().id
-        && (
-            isNonNullObject(args[2]) && "pendingThemeColors" in args[2]
-            || isNonNullObject(args[0]) && shouldUsePreviewTheme in args[0]
-        )
-        && pvCfg.showPreview
+        (user != null && user.id === previewUserId
+        || previewProps)
+        && showPreview
     ) {
-        if (pvCfg.primaryColor > -1)
-            return [pvCfg.primaryColor, pvCfg.accentColor > -1 ? pvCfg.accentColor : pvCfg.primaryColor];
-        if (pvCfg.accentColor > -1)
-            return [pvCfg.accentColor, pvCfg.accentColor];
+        if (primaryColor !== null)
+            return [primaryColor, accentColor ?? primaryColor];
+        if (accentColor !== null)
+            return [accentColor, accentColor];
     }
-    return originalReturn;
+    return origRet;
 });

@@ -2,7 +2,7 @@ import { after } from "@vendetta/patcher";
 import { storage } from "@vendetta/plugin";
 
 import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from "@lib/fpte";
-import UserProfileStore, { UserProfile } from "@lib/stores/UserProfileStore";
+import { type UserProfile, UserProfileStore } from "@lib/stores";
 
 function updateUserThemeColors(user: UserProfile, primary: number, accent: number) {
     if (primary > -1) {
@@ -21,7 +21,7 @@ function updateUserEffectId(user: UserProfile, id: bigint) {
     }
 }
 
-export default () => after("getUserProfile", UserProfileStore, (_: any, user: UserProfile | undefined) => {
+export const patchGetUserProfile = () => after("getUserProfile", UserProfileStore, (_args, user: UserProfile | undefined) => {
     if (user === undefined) return user;
 
     if (storage.prioritizeNitro) {
@@ -54,5 +54,6 @@ export default () => after("getUserProfile", UserProfileStore, (_: any, user: Us
         updateUserThemeColors(user, primaryColor, decodeColor(fpte[1]));
         updateUserEffectId(user, decodeEffect(fpte[2]));
     }
+
     return user;
 });

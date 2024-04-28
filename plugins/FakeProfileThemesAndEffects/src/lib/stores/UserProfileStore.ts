@@ -26,13 +26,13 @@ export interface UserProfile {
     premiumSince: Date | null;
     premiumType: number | null | undefined;
     profileEffectId?: string | undefined;
-    profileEffectID?: string | undefined; // Backwards compatibility
+    profileEffectID?: string | undefined; // Backwards compatiblity
     profileFetchFailed: boolean;
     pronouns: string;
-    themeColors?: [number, number] | undefined;
+    themeColors?: [primaryColor: number, accentColor: number] | undefined;
     userId: string;
 }
 
-export default <{
+export const UserProfileStore: {
     getUserProfile: (userId: string) => UserProfile | undefined;
-}>findByStoreName("UserProfileStore");
+} = findByStoreName("UserProfileStore");

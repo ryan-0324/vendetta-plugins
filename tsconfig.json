@@ -1,14 +1,22 @@
 {
+    "include": ["**/*", "node_modules/vendetta-types/*.d.ts"],
+    "exclude": ["dist"],
+
     "compilerOptions": {
-        "outDir": "dist",
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "node",
-        "esModuleInterop": true,
-        "jsx": "react-native",
+        "noImplicitOverride": true,
         "strict": true,
-        "exactOptionalPropertyTypes": true,
-        "allowJs": true
-    },
-    "include": ["plugins", "node_modules/vendetta-types"]
+
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "resolveJsonModule": true,
+
+        "importHelpers": true,
+        "noEmit": true,
+
+        "allowJs": true,
+        "checkJs": true,
+
+        "jsx": "react",
+        "target": "esnext"
+    }
 }

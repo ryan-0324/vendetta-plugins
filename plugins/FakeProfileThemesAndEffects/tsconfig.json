@@ -1,11 +1,16 @@
 {
-    "extends": "../../tsconfig",
+    "extends": "../../tsconfig.json",
+
     "compilerOptions": {
-        "baseUrl": ".",
+        "exactOptionalPropertyTypes": true,
+
         "paths": {
-            "@lib/*": ["src/lib/*"],
-            "@patches/*": ["src/patches/*"],
-            "@ui/*": ["src/ui/*"]
+            "@lib": ["./src/lib"],
+            "@lib/*": ["./src/lib/*"],
+            "@patches": ["./src/patches"],
+            "@patches/*": ["./src/patches/*"],
+            "@ui": ["./src/ui"],
+            "@ui/*": ["./src/ui/*"]
         }
     }
 }

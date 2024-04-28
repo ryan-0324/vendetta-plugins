@@ -1,10 +1,11 @@
 import { storage } from "@vendetta/plugin";
 import { useProxy } from "@vendetta/storage";
+import React from "react";
+import { ScrollView } from "react-native";
 
-import { ScrollView } from "@ui/components";
-import { FormRadioRow, FormRow, FormSwitchRow, FormSection } from "@ui/components/forms";
+import { FormRadioRow, FormRow, FormSection, FormSwitchRow } from "@ui/components/forms";
 
-export default () => {
+export function Settings() {
     useProxy(storage);
 
     return (
@@ -27,7 +28,12 @@ export default () => {
                     value={!!storage.hideBuilder}
                     onValueChange={value => { storage.hideBuilder = value; }}
                 />
+                <FormSwitchRow
+                    label="Force fallback effect picker"
+                    value={!!storage.forceFallbackEffectPicker}
+                    onValueChange={value => { storage.forceFallbackEffectPicker = value; }}
+                />
             </FormSection>
         </ScrollView>
     );
-};
+}

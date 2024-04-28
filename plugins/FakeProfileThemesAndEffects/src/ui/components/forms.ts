@@ -1,4 +1,5 @@
 import { Forms } from "@vendetta/ui/components";
+import type { ComponentType, ReactNode } from "react";
 import type { ColorValue, PressableProps, ViewProps } from "react-native";
 
 import type { TextProps } from "@ui/components/Text";
@@ -16,10 +17,10 @@ export interface ViewCardProps extends CardProps, ViewProps { }
 export interface PressableCardProps extends CardProps, PressableProps { }
 
 interface TableRowProps {
-    label?: React.ReactNode;
-    subLabel?: React.ReactNode;
-    icon?: React.ReactNode;
-    trailing?: React.ReactNode;
+    label?: ReactNode;
+    subLabel?: ReactNode;
+    icon?: ReactNode;
+    trailing?: ReactNode;
     arrow?: boolean | undefined;
     labelLineClamp?: TextProps["lineClamp"];
     subLabelLineClamp?: TextProps["lineClamp"];
@@ -58,9 +59,7 @@ export interface FormLabelProps extends Pick<TextProps, "accessible" | "color" |
 }
 
 export interface FormRowProps extends Pick<ViewProps, "style">,
-    Pick<PressableTableRowProps,
-        "accessibilityActions" | "accessibilityHint" | "accessibilityLabel" | "accessibilityRole" | "accessibilityState" | "accessible" | "delayLongPress" | "disabled"
-        | "end" | "label" | "onAccessibilityAction" | "onAccessibilityTap" | "onLongPress" | "onPress" | "onPressOut" | "start" | "subLabel" | "trailing" | "variant"> {
+    Pick<PressableTableRowProps, "accessibilityActions" | "accessibilityHint" | "accessibilityLabel" | "accessibilityRole" | "accessibilityState" | "accessible" | "delayLongPress" | "disabled" | "end" | "label" | "onAccessibilityAction" | "onAccessibilityTap" | "onLongPress" | "onPress" | "onPressOut" | "start" | "subLabel" | "trailing" | "variant"> {
     leading?: TableRowProps["icon"];
     leadingStyle?: ViewProps["style"];
     trailingWrapperStyle?: ViewProps["style"];
@@ -92,18 +91,18 @@ export interface FormSwitchRowProps extends Pick<FormLabelProps, "numberOfLines"
 }
 
 export interface FormCardSectionProps extends Pick<ViewProps, "accessibilityLabel" | "accessibilityRole" | "children" | "style"> {
-    title?: React.ReactNode;
-    headerComponent?: React.ReactNode;
+    title?: ReactNode;
+    headerComponent?: ReactNode;
     titleStyle?: TextProps["style"];
     cardStyle?: ViewProps["style"];
 }
 
-export const FormSection: React.ComponentType<FormSection> = Forms.FormSection;
+export const FormSection: ComponentType<FormSection> = Forms.FormSection;
 
-export const FormRow: React.ComponentType<FormRowProps> = Forms.FormRow;
+export const FormRow: ComponentType<FormRowProps> = Forms.FormRow;
 
-export const FormRadioRow: React.ComponentType<FormRadioRowProps> = Forms.FormRadioRow;
+export const FormRadioRow: ComponentType<FormRadioRowProps> = Forms.FormRadioRow;
 
-export const FormSwitchRow: React.ComponentType<FormSwitchRowProps> = Forms.FormSwitchRow;
+export const FormSwitchRow: ComponentType<FormSwitchRowProps> = Forms.FormSwitchRow;
 
-export const FormCardSection: React.ComponentType<FormCardSectionProps> = Forms.FormCardSection;
+export const FormCardSection: ComponentType<FormCardSectionProps> = Forms.FormCardSection;

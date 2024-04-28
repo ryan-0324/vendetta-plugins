@@ -1,7 +1,12 @@
 import { findByName } from "@vendetta/metro";
 
-export default <(props: {
-    color?: number | undefined;
+const _showColorPicker = findByName("showCustomColorPickerActionSheet") ?? (() => undefined);
+
+export function showColorPicker(props: {
+    color?: number | null | undefined;
     onSelect?: ((color: number) => void) | undefined;
     suggestedColors?: string[] | undefined;
-}) => void>(findByName("showCustomColorPickerActionSheet") ?? (() => {}));
+}) {
+    props.color ??= 0;
+    return _showColorPicker(props);
+}

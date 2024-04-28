@@ -1,12 +1,15 @@
-import type { ViewProps } from "react-native";
+import React from "react";
+import { Image, View, type ViewProps } from "react-native";
 
-import { PROFILE_EFFECT_WH_RATIO, ProfileEffect, SAMPLE_PROFILE_SMALL } from "@lib/profileEffects";
-import { Image, View } from "@ui/components";
+import { type ProfileEffect } from "@lib/stores";
+import { PROFILE_EFFECT_WH_RATIO, SAMPLE_PROFILE_SMALL } from "@ui/assets";
 
-export default ({ effect, style }: {
-    effect: ProfileEffect;
+export interface StaticEffectProps {
+    effect: ProfileEffect["config"];
     style?: ViewProps["style"];
-}) => (
+}
+
+export const StaticEffect = ({ effect, style }: StaticEffectProps) => (
     <View style={style}>
         <Image
             resizeMode="cover"

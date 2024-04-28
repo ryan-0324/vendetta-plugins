@@ -1,22 +1,30 @@
-import patchGetUserProfile from "@patches/patchGetUserProfile";
-import patchGuildProfileEditForm from "@patches/patchGuildProfileEditForm";
-import patchUseProfileThemeColors from "@patches/patchUseProfileThemeColors";
-import patchUserProfileEditForm from "@patches/patchUserProfileEditForm";
-import Settings from "@ui/pages/Settings";
+import {
+    patchGetPurchase,
+    patchGetUserProfile,
+    patchGuildProfileEditForm,
+    patchUseProfileEffectSections,
+    patchUseProfileThemeColors,
+    patchUserProfileEditForm
+} from "@patches";
+import { Settings } from "@ui/pages";
 
 const patches: (() => boolean)[] = [];
 
 export default {
-    onLoad: () => {
+    onLoad() {
         patches.push(
+            patchGetPurchase(),
             patchGetUserProfile(),
+            patchGuildProfileEditForm(),
+            ...patchUseProfileEffectSections(),
             patchUseProfileThemeColors(),
-            patchUserProfileEditForm(),
-            patchGuildProfileEditForm()
+            patchUserProfileEditForm()
         );
     },
-    onUnload: () => patches.forEach(unpatchFn => {
-        unpatchFn();
-    }),
+    onUnload() {
+        patches.forEach(unpatch => {
+            unpatch();
+        });
+    },
     settings: Settings
 };

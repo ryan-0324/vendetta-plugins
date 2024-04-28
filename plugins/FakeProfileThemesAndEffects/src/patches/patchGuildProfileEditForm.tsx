@@ -1,13 +1,14 @@
 import { findByName } from "@vendetta/metro";
 import { after } from "@vendetta/patcher";
 import { storage } from "@vendetta/plugin";
+import React from "react";
 
-import { findParentInTree, getComponentNameFromType, isElement, RN } from "@lib/reactNativeRenderTree";
-import Builder from "@ui/components/Builder";
+import { findParentInTree, getComponentNameFromType, isElement, type RN } from "@lib/reactNativeRenderTree";
+import { Builder } from "@ui/components";
 
-const GuildProfileEditFormModule = findByName("GuildProfileEditForm", false);
+const funcParent = findByName("GuildProfileEditForm", false);
 
-export default () => after("default", GuildProfileEditFormModule, (_: any, tree: RN.Node) => {
+export const patchGuildProfileEditForm = () => after("default", funcParent, (_args, tree: RN.Node) => {
     if (storage.hideBuilder) return tree;
     let guildId: string | undefined;
     const parent = findParentInTree(tree, children =>

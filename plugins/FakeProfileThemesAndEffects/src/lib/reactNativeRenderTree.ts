@@ -1,4 +1,6 @@
-import { isIterable, isNonNullObject, OmitCallSignature } from "@lib/utils";
+import type React from "react";
+
+import { isIterable, isNonNullObject, type OmitCallSignature } from "@lib/utils";
 
 export namespace RN {
     export type Fragment<P extends object = object> = Element<P, symbol>;
@@ -22,12 +24,12 @@ export namespace RN {
         render: React.ForwardRefRenderFunction<T, P>;
     }
 
-    export interface MemoType<T extends ElementType<any> = ElementType<object>> extends OmitCallSignature<React.NamedExoticComponent<ComponentPropsWithRef<T>>> {
+    export interface MemoType<T extends ElementType<any> = ElementType> extends OmitCallSignature<React.NamedExoticComponent<ComponentPropsWithRef<T>>> {
         readonly type: T;
     }
 
     export interface Component<P, S> extends Omit<React.Component<P, S>, "render"> {
-        render(): Node;
+        render: () => Node;
     }
 
     export interface ComponentClass<P extends object = object, S = React.ComponentState> extends OmitCallSignature<React.ComponentClass<P, S>> {
@@ -50,7 +52,7 @@ export namespace RN {
 
     export type Node = Iterable<Node> | Element | string | number | boolean | null | undefined;
 
-    export type PropsWithChildren<P extends object = object> = P & { children: Node };
+    export type PropsWithChildren<P extends object = object> = P & { children: Node; };
 
     export type ComponentProps<T extends ElementType> = T extends ElementType<infer P> ? P : object;
 
@@ -80,21 +82,23 @@ export function isMemoType(arg: Exclude<RN.ElementType, symbol>): arg is RN.Memo
     return "type" in arg;
 }
 
+/* eslint-disable @typescript-eslint/no-unnecessary-condition, @typescript-eslint/prefer-nullish-coalescing */
 export function getComponentNameFromType(type: RN.ElementType) {
     if (typeof type === "symbol")
-        return Symbol.keyFor(type) || null;
+        return Symbol.keyFor(type) ?? null;
     if (typeof type === "function")
-        return type.displayName || type.name || null;
+        return (type.displayName || type.name) ?? null;
     if (isProviderType(type))
-        return type._context.displayName || null;
+        return type._context.displayName ?? null;
     if (type.displayName)
         return type.displayName;
     if (isForwardRefType(type))
-        return type.render.displayName || type.render.name || null;
+        return (type.render.displayName || type.render.name) ?? null;
     if (isMemoType(type))
         return getComponentNameFromType(type.type);
     return null;
 }
+/* eslint-enable @typescript-eslint/no-unnecessary-condition, @typescript-eslint/prefer-nullish-coalescing */
 
 export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) => boolean, maxDepth = 200): RN.Element | null {
     if (isNonNullObject(tree)) {
@@ -123,11 +127,9 @@ export function findParentInTree(tree: RN.Node, filter: (children: RN.Node) => b
                     if (foundParent) return foundParent;
                 }
             }
-        } else {
-            if (isElementWithChildren(tree)) {
-                if (filter(tree.props.children)) return tree;
-                return findParentInTree(tree.props.children, filter, maxDepth - 1);
-            }
+        } else if (isElementWithChildren(tree)) {
+            if (filter(tree.props.children)) return tree;
+            return findParentInTree(tree.props.children, filter, maxDepth - 1);
         }
     }
     return null;

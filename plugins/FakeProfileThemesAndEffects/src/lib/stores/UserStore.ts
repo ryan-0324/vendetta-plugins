@@ -11,12 +11,13 @@ export interface User {
         skuId: string;
     } | null;
     bot: boolean;
+    clan: null; // TEMP
     readonly createdAt: Date; // Getter
     desktop: boolean;
     discriminator: string;
     email: string | null;
     flags: number;
-    globalName: string | null,
+    globalName: string | null;
     guildMemberAvatars: Record<string, string>;
     hasBouncedEmail: boolean;
     id: string;
@@ -61,7 +62,7 @@ export interface User {
     toString: () => string;
 }
 
-export default <{
-    getUser: (userId: string) => User | undefined;
+export const UserStore: {
+    getUser: (userId: string | null | undefined) => User | undefined;
     getCurrentUser: () => User;
-}>findByStoreName("UserStore");
+} = findByStoreName("UserStore");

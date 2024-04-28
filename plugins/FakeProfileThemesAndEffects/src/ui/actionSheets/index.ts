@@ -1,23 +1,27 @@
 import { findByProps } from "@vendetta/metro";
+import type { ComponentType, ReactNode } from "react";
 
-export { default as showColorPicker } from "@ui/actionSheets/showColorPicker";
-export { default as showEffectPicker } from "@ui/actionSheets/showEffectPicker";
+export * from "./EffectPickerActionSheet";
+export * from "./FallbackEffectPickerActionSheet";
+export * from "./showColorPicker";
+export * from "./showEffectPicker";
 
-export const ActionSheet: React.ComponentType<any> = findByProps("ActionSheet")?.ActionSheet
+export const BottomSheet: ComponentType<any> = (findByProps("BottomSheet") as any)?.BottomSheet
+    ?? (findByProps("ActionSheet") as any)?.ActionSheet
     ?? (() => { throw new Error("FakeProfileThemesAndEffects threw an error to avoid an otherwise-inevitable, unrecoverable freeze."); });
 
-export const BottomSheetScrollView: React.ComponentType<any>
-    = findByProps("BottomSheetScrollView")?.BottomSheetScrollView ?? (() => null);
+export const BottomSheetScrollView: ComponentType<any>
+    = (findByProps("BottomSheetScrollView") as any)?.BottomSheetScrollView ?? (() => null);
 
-const actionSheetModule = findByProps("showActionSheet");
+const actionSheetModule: any = findByProps("showActionSheet");
 
 export const showActionSheet: (props: {
-    content: React.ReactNode;
+    content: ReactNode;
     key: string;
     impressionName?: string | undefined;
     impressionProperties?: object | undefined;
     backdropKind?: string | undefined;
-}) => void = actionSheetModule?.showActionSheet ?? (() => {});
+}) => void = actionSheetModule?.showActionSheet ?? (() => undefined);
 
 export const hideActionSheet: (key?: string | undefined) => void
-    = actionSheetModule?.default?.hideActionSheet ?? (() => {});
+    = actionSheetModule?.default?.hideActionSheet ?? (() => undefined);

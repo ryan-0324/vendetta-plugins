@@ -1,3 +1,9 @@
+declare const emptyObjectSymbol: unique symbol;
+
+export interface EmptyObject {
+    [emptyObjectSymbol]?: never;
+}
+
 export type OmitCallSignature<T> = Pick<T, keyof T>;
 
 export type StringDict<V extends string> = { [K in V as Uppercase<K>]: V };

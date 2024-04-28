@@ -1,12 +1,10 @@
-import { clipboard } from "@vendetta/metro/common";
-import { getAssetIDByName } from "@vendetta/ui/assets";
+import Clipboard from "@react-native-clipboard/clipboard";
 import { showToast } from "@vendetta/ui/toasts";
 
-const TOAST_TYPE_COPY = getAssetIDByName("toast_copy_link");
-const TOAST_TYPE_FAILURE = getAssetIDByName("Small");
+import { TOAST_TYPE_COPY, TOAST_TYPE_FAILURE } from "@ui/assets";
 
 export function copyWithToast(text: string, message: string) {
-    clipboard.setString(text);
+    Clipboard.setString(text);
     showToast(message, TOAST_TYPE_COPY);
 }
 

@@ -1,18 +1,18 @@
 import { findByName } from "@vendetta/metro";
-import { React } from "@vendetta/metro/common";
+import { storage } from "@vendetta/plugin";
+import React, { type ReactElement, type ReactNode, useMemo } from "react";
 
-import { ProfileEffect, ProfileEffectRecord } from "@lib/profileEffects";
-import { findElementInTree, findParentInTree, getComponentNameFromType, RN } from "@lib/reactNativeRenderTree";
-import { MarkedUser, shouldUsePreviewTheme } from "@patches/patchUseProfileThemeColors";
-import FallbackEffectPickerActionSheet from "@ui/actionSheets/FallbackEffectPickerActionSheet";
+import { findElementInTree, findParentInTree, getComponentNameFromType, type RN } from "@lib/reactNativeRenderTree";
+import { ProfileEffectRecord } from "@lib/records";
+import type { ProfileEffect, User } from "@lib/stores";
+import { setPreviewUserId } from "@patches/patchUseProfileThemeColors";
+import { FallbackEffectPickerActionSheet } from "@ui/actionSheets";
 import { ThemeContextProvider, useThemeContext } from "@ui/color";
-
-const { useMemo } = React;
 
 export interface EffectPickerActionSheetProps {
     effects: ProfileEffect[];
-    onSelect: (effect: ProfileEffect | null) => void;
-    user: MarkedUser;
+    onSelect: (effect: ProfileEffect["config"] | null) => void;
+    user: User;
     currentEffectId?: string | undefined;
 }
 
@@ -21,34 +21,40 @@ const EffectPicker: RN.FunctionComponent | undefined = findByName("EditProfileEf
 let lastGoodTree: RN.Node;
 
 function PatchedEffectPickerActionSheet(props: EffectPickerActionSheetProps) {
-    const tree = EffectPicker!({ user: props.user });
+    const { currentEffectId, effects, onSelect, user } = props;
+
+    const tree = EffectPicker!({ user });
 
     const themeContext = useThemeContext();
 
-    const effectRecords = useMemo(() => props.effects.map(e => ({ items: new ProfileEffectRecord({ id: e.id }) })), [props.effects]);
+    const effectRecords = useMemo(() => effects.map(effect => ({ items: new ProfileEffectRecord(effect) })), [effects]);
+
+    if (storage.forceFallbackEffectPicker)
+        return <FallbackEffectPickerActionSheet {...props} />;
 
     let isLegacyEffectPicker = false;
-    const effectPickerInner: RN.Element<any> | null = findElementInTree(tree, e => {
-        if (getComponentNameFromType(e.type) === "EditProfileEffectInner")
+    const effectPickerInner: RN.Element<any> | null = findElementInTree(tree, element => {
+        if (getComponentNameFromType(element.type) === "EditProfileEffectInner")
             return true;
         if (
-            "profileEffects" in e.props
-            && "selectedProfileEffect" in e.props
-            && typeof (e.props as any).setSelectedProfileEffect === "function"
+            "profileEffects" in element.props
+            && "selectedProfileEffect" in element.props
+            && typeof (element.props as any).setSelectedProfileEffect === "function"
         ) return isLegacyEffectPicker = true;
         return false;
     });
     if (!effectPickerInner) {
-        if (lastGoodTree) return lastGoodTree as JSX.Element;
-        return FallbackEffectPickerActionSheet(props);
+        if (lastGoodTree) return lastGoodTree as ReactElement;
+        return <FallbackEffectPickerActionSheet {...props} />;
     }
 
-    const applyButton: RN.Element<any> | null = findElementInTree(tree, e => getComponentNameFromType(e.type) === "Button");
+    const applyButton: RN.Element<any> | null = findElementInTree(tree, element => getComponentNameFromType(element.type) === "Button");
     if (!applyButton) {
-        if (lastGoodTree) return lastGoodTree as JSX.Element;
-        return FallbackEffectPickerActionSheet(props);
+        if (lastGoodTree) return lastGoodTree as ReactElement;
+        return <FallbackEffectPickerActionSheet {...props} />;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (isLegacyEffectPicker) {
         if (effectPickerInner.props.selectedProfileEffect === undefined)
             effectPickerInner.props.setSelectedProfileEffect(props.currentEffectId
@@ -67,7 +73,7 @@ function PatchedEffectPickerActionSheet(props: EffectPickerActionSheetProps) {
                     theme={baseProvider.props.theme}
                     primaryColor={baseProvider.props.primaryColor}
                     secondaryColor={baseProvider.props.secondaryColor}
-                    children={profilePreview.props.children as React.ReactNode}
+                    children={profilePreview.props.children as ReactNode}
                 />
             );
 
@@ -77,21 +83,21 @@ function PatchedEffectPickerActionSheet(props: EffectPickerActionSheetProps) {
         }
     } else {
         if (effectPickerInner.props.selectedProfileEffect === undefined)
-            effectPickerInner.props.setSelectedProfileEffect(props.currentEffectId
-                ? new ProfileEffectRecord({ id: props.currentEffectId })
+            effectPickerInner.props.setSelectedProfileEffect(currentEffectId
+                ? new ProfileEffectRecord({ id: currentEffectId })
                 : null);
         effectPickerInner.props.purchases = effectRecords;
     }
 
-    props.user[shouldUsePreviewTheme] = undefined;
+    setPreviewUserId(user.id);
     applyButton.props.onPress = () => {
-        delete props.user[shouldUsePreviewTheme];
-        props.onSelect(props.effects.find(e => e.id === effectPickerInner.props.selectedProfileEffect?.id) ?? null);
+        setPreviewUserId(undefined);
+        onSelect(effects.find(effect => effect.id === effectPickerInner.props.selectedProfileEffect?.id)?.config ?? null);
     };
 
-    return lastGoodTree = tree as JSX.Element;
+    return (lastGoodTree = tree) as ReactElement;
 }
 
-export default EffectPicker
+export const EffectPickerActionSheet = EffectPicker
     ? PatchedEffectPickerActionSheet
     : FallbackEffectPickerActionSheet;
