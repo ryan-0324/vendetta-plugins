@@ -4,7 +4,19 @@ import type { ComponentType, PropsWithChildren } from "react";
 
 import type { EmptyObject } from "@lib/utils";
 
+export const semanticColors: Record<string, EmptyObject> = _semanticColors;
+
+export const resolveSemanticColor: (theme: Theme, semanticColor: EmptyObject) => string
+    = find(m => m.default?.internal?.resolveSemanticColor)?.default.internal.resolveSemanticColor
+    ?? find(m => m.meta?.resolveSemanticColor)?.meta.resolveSemanticColor ?? (() => undefined);
+
+export const useAvatarColors: (avatarUrl: string, fillerColor: string, desaturateColors?: boolean | undefined) => string[]
+    = (findByProps("useAvatarColors") as any)?.useAvatarColors ?? (() => undefined);
+
 export type Theme = "dark" | "light" | "midnight" | "darker";
+
+export const getProfileTheme: <T extends number | null | undefined>(primaryColor: T) => T extends number ? Theme : null
+    = findByProps("getProfileTheme").getProfileTheme;
 
 export interface ThemeContext {
     theme: Theme;
@@ -24,15 +36,6 @@ export interface ThemeContext {
     flags: number;
     key: string;
 }
-
-export const semanticColors: Record<string, EmptyObject> = _semanticColors;
-
-export const resolveSemanticColor: (theme: Theme, semanticColor: EmptyObject) => string
-    = find(m => m.default?.internal?.resolveSemanticColor)?.default.internal.resolveSemanticColor
-    ?? find(m => m.meta?.resolveSemanticColor)?.meta.resolveSemanticColor ?? (() => undefined);
-
-export const useAvatarColors: (avatarUrl: string, fillerColor: string, desaturateColors?: boolean | undefined) => string[]
-    = (findByProps("useAvatarColors") as any)?.useAvatarColors ?? (() => undefined);
 
 export const useThemeContext: () => ThemeContext
     = (findByProps("useThemeContext") as any)?.useThemeContext ?? (() => ({}));

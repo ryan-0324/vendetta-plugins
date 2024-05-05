@@ -2,7 +2,7 @@ import React from "react";
 
 import { FluxDispatcher } from "@lib/flux";
 import { type ProfileEffect, ProfileEffectStore, UserStore } from "@lib/stores";
-import { setPreviewUserId } from "@patches/patchUseProfileThemeColors";
+import { setPreviewUserId } from "@patches/patchUseProfileTheme";
 import { EffectPickerActionSheet, hideActionSheet, showActionSheet } from "@ui/actionSheets";
 
 const SHEET_KEY = "__FPTE__";

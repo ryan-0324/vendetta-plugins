@@ -3,7 +3,7 @@ import {
     patchGetUserProfile,
     patchGuildProfileEditForm,
     patchUseProfileEffectSections,
-    patchUseProfileThemeColors,
+    patchUseProfileTheme,
     patchUserProfileEditForm
 } from "@patches";
 import { Settings } from "@ui/pages";
@@ -17,7 +17,7 @@ export default {
             patchGetUserProfile(),
             patchGuildProfileEditForm(),
             ...patchUseProfileEffectSections(),
-            patchUseProfileThemeColors(),
+            patchUseProfileTheme(),
             patchUserProfileEditForm()
         );
     },

@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 import { buildFPTE } from "@lib/fpte";
 import { type ProfileEffect, UserStore } from "@lib/stores";
-import { useAccentColor, usePrimaryColor, useShowPreview } from "@patches/patchUseProfileThemeColors";
+import { useAccentColor, usePrimaryColor, useShowPreview } from "@patches/patchUseProfileTheme";
 import { showColorPicker, showEffectPicker } from "@ui/actionSheets";
 import { resolveSemanticColor, semanticColors, useAvatarColors, useThemeContext } from "@ui/color";
 import { BuilderButton, Button, StaticEffect } from "@ui/components";
@@ -24,8 +24,8 @@ export function Builder({ guildId }: BuilderProps) {
 
     const { theme } = useThemeContext();
     const [fgColor, fillerColor] = useMemo(() => [
-        resolveSemanticColor(theme, semanticColors.HEADER_SECONDARY),
-        resolveSemanticColor(theme, semanticColors.BACKGROUND_ACCENT)
+        resolveSemanticColor(theme, semanticColors.HEADER_SECONDARY!),
+        resolveSemanticColor(theme, semanticColors.BACKGROUND_ACCENT!)
     ], [theme]);
     const avatarColors = useAvatarColors(UserStore.getCurrentUser().getAvatarURL(guildId, 80), fillerColor, false);
 

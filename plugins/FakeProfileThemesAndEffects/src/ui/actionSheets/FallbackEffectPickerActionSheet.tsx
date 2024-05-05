@@ -62,9 +62,9 @@ export function FallbackEffectPickerActionSheet({ currentEffectId, effects, onSe
 
     const { theme } = useThemeContext();
     const colors: ItemProps["colors"] = useMemo(() => [
-        resolveSemanticColor(theme, semanticColors.BACKGROUND_PRIMARY),
-        resolveSemanticColor(theme, semanticColors.BACKGROUND_FLOATING),
-        resolveSemanticColor(theme, semanticColors.BUTTON_OUTLINE_BRAND_BORDER_ACTIVE)
+        resolveSemanticColor(theme, semanticColors.BACKGROUND_PRIMARY!),
+        resolveSemanticColor(theme, semanticColors.BACKGROUND_FLOATING!),
+        resolveSemanticColor(theme, semanticColors.BUTTON_OUTLINE_BRAND_BORDER_ACTIVE!)
     ], [theme]);
 
     const windowDimensions = useWindowDimensions();
@@ -72,7 +72,7 @@ export function FallbackEffectPickerActionSheet({ currentEffectId, effects, onSe
 
     const effectRows = useMemo(() => {
         const effectChunks: (ProfileEffect | null | undefined)[][] = chunk([null, ...effects], ROW_SIZE);
-        const lastChunk = effectChunks[effectChunks.length - 1];
+        const lastChunk = effectChunks[effectChunks.length - 1]!;
         while (lastChunk.length < 3) lastChunk.push(undefined);
         return effectChunks;
     }, [effects]);

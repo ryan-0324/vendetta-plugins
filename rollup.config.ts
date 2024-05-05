@@ -8,7 +8,7 @@ import { swc } from "rollup-plugin-swc3";
 
 const vendettaImport = /^@vendetta(\/|$)/;
 
-const globals: Record<string, string | undefined> = {
+const globals: Record<string, string> = {
     "@react-native-clipboard/clipboard": "vendetta.metro.common.clipboard",
     chroma: "vendetta.metro.common.chroma",
     lodash: "vendetta.metro.common.lodash",
@@ -49,6 +49,7 @@ export default (await Promise.all(readdirSync("./plugins", { withFileTypes: true
                         "transform-classes"
                     ],
                     exclude: [
+                        "transform-async-to-generator",
                         "transform-exponentiation-operator",
                         "transform-named-capturing-groups-regex",
                         "transform-nullish-coalescing-operator",

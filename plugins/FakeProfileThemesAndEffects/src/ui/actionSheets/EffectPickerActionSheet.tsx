@@ -5,7 +5,7 @@ import React, { type ReactElement, type ReactNode, useMemo } from "react";
 import { findElementInTree, findParentInTree, getComponentNameFromType, type RN } from "@lib/reactNativeRenderTree";
 import { ProfileEffectRecord } from "@lib/records";
 import type { ProfileEffect, User } from "@lib/stores";
-import { setPreviewUserId } from "@patches/patchUseProfileThemeColors";
+import { setPreviewUserId } from "@patches/patchUseProfileTheme";
 import { FallbackEffectPickerActionSheet } from "@ui/actionSheets";
 import { ThemeContextProvider, useThemeContext } from "@ui/color";
 

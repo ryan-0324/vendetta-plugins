@@ -163,7 +163,17 @@ export default tseslint.config(
             "no-restricted-imports": ["error", {
                 paths: ["assert", "async_hooks", "buffer", "child_process", "cluster", "console", "constants", "crypto", "dgram", "diagnostics_channel", "dns", "domain", "events", "fs", "http", "http2", "https", "inspector", "module", "net", "os", "path", "perf_hooks", "process", "punycode", "querystring", "readline", "repl", "stream", "string_decoder", "timers", "tls", "trace_events", "tty", "url", "util", "v8", "vm", "wasi", "worker_threads", "zlib", "node:assert", "node:async_hooks", "node:buffer", "node:child_process", "node:cluster", "node:console", "node:constants", "node:crypto", "node:dgram", "node:diagnostics_channel", "node:dns", "node:domain", "node:events", "node:fs", "node:http", "node:http2", "node:https", "node:inspector", "node:module", "node:net", "node:os", "node:path", "node:perf_hooks", "node:process", "node:punycode", "node:querystring", "node:readline", "node:repl", "node:sea", "node:stream", "node:string_decoder", "node:test", "node:timers", "node:tls", "node:trace_events", "node:tty", "node:url", "node:util", "node:v8", "node:vm", "node:wasi", "node:worker_threads", "node:zlib"],
                 patterns: ["assert/*", "dns/*", "fs/*", "path/*", "readline/*", "stream/*", "timers/*", "util/*", "node:assert/*", "node:dns/*", "node:fs/*", "node:path/*", "node:readline/*", "node:stream/*", "node:test/*", "node:timers/*", "node:util/*"]
-            }]
+            }],
+            "no-restricted-syntax": ["error",
+                {
+                    selector: "ArrowFunctionExpression[async=true]",
+                    message: "Hermes does not support async arrow functions, and build output size would increase if `transform-arrow-functions` were included."
+                },
+                {
+                    selector: "AwaitExpression:not(:function *)",
+                    message: "Hermes does not support top-level await, and SWC cannot transform it."
+                }
+            ]
         }
     }
 );

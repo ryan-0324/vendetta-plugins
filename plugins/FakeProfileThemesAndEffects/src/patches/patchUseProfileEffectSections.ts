@@ -3,7 +3,7 @@ import { after } from "@vendetta/patcher";
 
 import { ProfileEffectRecord } from "@lib/records";
 import { type ProfileEffect, ProfileEffectStore } from "@lib/stores";
-import { previewUserId } from "@patches/patchUseProfileThemeColors";
+import { previewUserId } from "@patches/patchUseProfileTheme";
 
 const useSectionModules = findByPropsAll("NONE_ITEM");
 

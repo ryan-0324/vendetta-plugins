@@ -4,6 +4,7 @@
 
     "compilerOptions": {
         "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
         "strict": true,
 
         "module": "esnext",

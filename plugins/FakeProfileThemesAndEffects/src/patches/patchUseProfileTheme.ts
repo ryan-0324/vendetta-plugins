@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { FluxDispatcher } from "@lib/flux";
 import type { ProfileEffect, User, UserProfile } from "@lib/stores";
+import { getProfileTheme, type Theme } from "@ui/color";
 
 function updatePreview() {
     FluxDispatcher.dispatch({ type: "USER_SETTINGS_ACCOUNT_SUBMIT_SUCCESS" });
@@ -93,6 +94,22 @@ interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "b
     getPreviewThemeColors: (pendingThemeColors?: UserProfile["themeColors"] | undefined) => Exclude<UserProfile["themeColors"], undefined>;
 }
 
+type useProfileThemeArgs = [
+    props: {
+        user?: User | null | undefined;
+        displayProfile?: DisplayProfile | null | undefined;
+        pendingThemeColors: UserProfile["themeColors"] | undefined;
+        pendingAvatar?: User["avatar"] | null | undefined;
+        isPreview?: boolean | null | undefined;
+    }
+];
+
+interface useProfileThemeRet {
+    theme: Theme;
+    primaryColor: number | null;
+    secondaryColor: number | null;
+}
+
 type useProfileThemeColorsArgs = [
     user: User | null | undefined,
     displayProfile: DisplayProfile | null | undefined,
@@ -103,20 +120,45 @@ type useProfileThemeColorsArgs = [
     } | undefined
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const funcParent = findByName("useProfileThemeColors", false) ?? { default() { } };
+type useProfileThemeColorsRet = [number | null, number | null];
 
-export const patchUseProfileThemeColors = () => after("default", funcParent, (args: any, origRet) => {
-    const [user, _displayProfile, previewProps]: useProfileThemeColorsArgs = args;
-    if (
-        (user != null && user.id === previewUserId
-        || previewProps)
-        && showPreview
-    ) {
-        if (primaryColor !== null)
-            return [primaryColor, accentColor ?? primaryColor];
-        if (accentColor !== null)
-            return [accentColor, accentColor];
+let fallback = false;
+
+const funcParent = findByName("useProfileTheme", false)
+    ?? (fallback = true, findByName("useProfileThemeColors", false))
+    ?? { default: () => undefined };
+
+export const patchUseProfileTheme = () => after("default", funcParent, (!fallback
+    ? ([props]: useProfileThemeArgs, profileTheme: useProfileThemeRet) => {
+        const { user } = props;
+        if (
+            (user != null && user.id === previewUserId
+            || "pendingThemeColors" in props)
+            && showPreview
+        ) {
+            if (primaryColor !== null) {
+                profileTheme.theme = getProfileTheme(primaryColor);
+                profileTheme.primaryColor = primaryColor;
+                profileTheme.secondaryColor = accentColor ?? primaryColor;
+            } else if (accentColor !== null) {
+                profileTheme.theme = getProfileTheme(accentColor);
+                profileTheme.primaryColor = accentColor;
+                profileTheme.secondaryColor = accentColor;
+            }
+        }
+        return profileTheme;
     }
-    return origRet;
-});
+    : ([user, _displayProfile, previewProps]: useProfileThemeColorsArgs, origRet: useProfileThemeColorsRet) => {
+        if (
+            (user != null && user.id === previewUserId
+            || previewProps)
+            && showPreview
+        ) {
+            if (primaryColor !== null)
+                return [primaryColor, accentColor ?? primaryColor];
+            if (accentColor !== null)
+                return [accentColor, accentColor];
+        }
+        return origRet;
+    }) as any
+);
