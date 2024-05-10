@@ -122,43 +122,44 @@ type useProfileThemeColorsArgs = [
 
 type useProfileThemeColorsRet = [number | null, number | null];
 
-let fallback = false;
-
-const funcParent = findByName("useProfileTheme", false)
-    ?? (fallback = true, findByName("useProfileThemeColors", false))
-    ?? { default: () => undefined };
-
-export const patchUseProfileTheme = () => after("default", funcParent, (!fallback
-    ? ([props]: useProfileThemeArgs, profileTheme: useProfileThemeRet) => {
-        const { user } = props;
-        if (
-            (user != null && user.id === previewUserId
-            || "pendingThemeColors" in props)
-            && showPreview
-        ) {
-            if (primaryColor !== null) {
-                profileTheme.theme = getProfileTheme(primaryColor);
-                profileTheme.primaryColor = primaryColor;
-                profileTheme.secondaryColor = accentColor ?? primaryColor;
-            } else if (accentColor !== null) {
-                profileTheme.theme = getProfileTheme(accentColor);
-                profileTheme.primaryColor = accentColor;
-                profileTheme.secondaryColor = accentColor;
+export const patchUseProfileTheme = (() => {
+    let funcParent = findByName("useProfileTheme", false);
+    if (funcParent)
+        return () => after("default", funcParent, (([props]: useProfileThemeArgs, profileTheme: useProfileThemeRet) => {
+            const { user } = props;
+            if (
+                (user != null && user.id === previewUserId
+                || "pendingThemeColors" in props)
+                && showPreview
+            ) {
+                if (primaryColor !== null) {
+                    profileTheme.theme = getProfileTheme(primaryColor);
+                    profileTheme.primaryColor = primaryColor;
+                    profileTheme.secondaryColor = accentColor ?? primaryColor;
+                } else if (accentColor !== null) {
+                    profileTheme.theme = getProfileTheme(accentColor);
+                    profileTheme.primaryColor = accentColor;
+                    profileTheme.secondaryColor = accentColor;
+                }
             }
-        }
-        return profileTheme;
-    }
-    : ([user, _displayProfile, previewProps]: useProfileThemeColorsArgs, origRet: useProfileThemeColorsRet) => {
-        if (
-            (user != null && user.id === previewUserId
-            || previewProps)
-            && showPreview
-        ) {
-            if (primaryColor !== null)
-                return [primaryColor, accentColor ?? primaryColor];
-            if (accentColor !== null)
-                return [accentColor, accentColor];
-        }
-        return origRet;
-    }) as any
-);
+            return profileTheme;
+        }) as any);
+
+    funcParent = findByName("useProfileThemeColors", false);
+    if (funcParent)
+        return () => after("default", funcParent, (([user, _displayProfile, previewProps]: useProfileThemeColorsArgs, origRet: useProfileThemeColorsRet) => {
+            if (
+                (user != null && user.id === previewUserId
+                || previewProps)
+                && showPreview
+            ) {
+                if (primaryColor !== null)
+                    return [primaryColor, accentColor ?? primaryColor];
+                if (accentColor !== null)
+                    return [accentColor, accentColor];
+            }
+            return origRet;
+        }) as any);
+
+    return () => () => true;
+})();
