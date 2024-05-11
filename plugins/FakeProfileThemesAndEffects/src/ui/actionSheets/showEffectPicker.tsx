@@ -24,7 +24,7 @@ export function showEffectPicker(onSelect: (effect: ProfileEffect["config"] | nu
                     onSelect(effect);
                     hideActionSheet(SHEET_KEY);
                 }}
-                user={UserStore.getCurrentUser()}
+                user={UserStore.getCurrentUser()!}
                 currentEffectId={currentEffectId}
             />
         ),

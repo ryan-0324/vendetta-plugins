@@ -27,7 +27,7 @@ export function Builder({ guildId }: BuilderProps) {
         resolveSemanticColor(theme, semanticColors.HEADER_SECONDARY!),
         resolveSemanticColor(theme, semanticColors.BACKGROUND_ACCENT!)
     ], [theme]);
-    const avatarColors = useAvatarColors(UserStore.getCurrentUser().getAvatarURL(guildId, 80), fillerColor, false);
+    const avatarColors = useAvatarColors(UserStore.getCurrentUser()!.getAvatarURL(guildId, 80), fillerColor, false);
 
     return (
         <FormCardSection

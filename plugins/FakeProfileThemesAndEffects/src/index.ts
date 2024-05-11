@@ -13,7 +13,9 @@ import { Settings } from "@ui/pages";
 /** Updates the profile theme and effect used by YouScreen and BottomTabBar. */
 function updateProfileThemeAndEffect() {
     const user = UserStore.getCurrentUser();
-    const user_profile = UserProfileStore.getUserProfile(user.id)!;
+    if (!user) return;
+    const user_profile = UserProfileStore.getUserProfile(user.id);
+    if (!user_profile) return;
     FluxDispatcher.dispatch({
         type: "USER_PROFILE_FETCH_SUCCESS",
         user,

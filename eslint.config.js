@@ -94,7 +94,10 @@ export default tseslint.config(
                 varsIgnorePattern: "^_",
                 ignoreRestSiblings: true
             }],
-            "@typescript-eslint/no-use-before-define": "error",
+            "@typescript-eslint/no-use-before-define": ["error", {
+                functions: false,
+                classes: false
+            }],
             "@typescript-eslint/no-useless-empty-export": "error",
             "@typescript-eslint/prefer-find": "error",
             "@typescript-eslint/prefer-namespace-keyword": "off",

@@ -64,5 +64,5 @@ export interface User {
 
 export const UserStore: {
     getUser: (userId: string | null | undefined) => User | undefined;
-    getCurrentUser: () => User;
+    getCurrentUser: () => User | undefined;
 } = findByStoreName("UserStore");
