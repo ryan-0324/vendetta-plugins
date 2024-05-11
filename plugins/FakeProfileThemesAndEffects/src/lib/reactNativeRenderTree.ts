@@ -33,7 +33,7 @@ export namespace RN {
     }
 
     export interface ComponentClass<P extends object = object, S = React.ComponentState> extends OmitCallSignature<React.ComponentClass<P, S>> {
-        new(props: P, context?: any): Component<P, S>;
+        new (props: P, context?: any): Component<P, S>;
     }
 
     export interface FunctionComponent<P extends object = object> extends OmitCallSignature<React.FunctionComponent<P>> {
@@ -82,25 +82,26 @@ export function isMemoType(arg: Exclude<RN.ElementType, symbol>): arg is RN.Memo
     return "type" in arg;
 }
 
-/* eslint-disable @typescript-eslint/no-unnecessary-condition, @typescript-eslint/prefer-nullish-coalescing */
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+/** @see {@link https://github.com/facebook/react-native/blob/d724007364c4315e2cabace0fc6eae6e6212431d/packages/react-native/Libraries/Renderer/implementations/ReactNativeRenderer-dev.js#L3130-L3212} */
 export function getComponentNameFromType(type: RN.ElementType) {
     if (typeof type === "symbol")
-        return Symbol.keyFor(type) ?? null;
+        return Symbol.keyFor(type) || null;
     if (typeof type === "function")
-        return (type.displayName || type.name) ?? null;
+        return type.displayName || type.name || null;
     if (isProviderType(type))
-        return type._context.displayName ?? null;
+        return type._context.displayName || null;
     if (type.displayName)
         return type.displayName;
     if (isForwardRefType(type))
-        return (type.render.displayName || type.render.name) ?? null;
+        return type.render.displayName || type.render.name || null;
     if (isMemoType(type))
         return getComponentNameFromType(type.type);
     return null;
 }
-/* eslint-enable @typescript-eslint/no-unnecessary-condition, @typescript-eslint/prefer-nullish-coalescing */
+/* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
 
-export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) => boolean, maxDepth = 200): RN.Element | null {
+export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) => unknown, maxDepth = 200): RN.Element | null {
     if (isNonNullObject(tree)) {
         if (isIterable(tree)) {
             if (maxDepth > 0) {
@@ -118,7 +119,7 @@ export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) =
     return null;
 }
 
-export function findParentInTree(tree: RN.Node, filter: (children: RN.Node) => boolean, maxDepth = 200): RN.Element<RN.PropsWithChildren> | null {
+export function findParentInTree(tree: RN.Node, filter: (children: RN.Node) => unknown, maxDepth = 200): RN.Element<RN.PropsWithChildren> | null {
     if (isNonNullObject(tree)) {
         if (isIterable(tree)) {
             if (maxDepth > 0) {

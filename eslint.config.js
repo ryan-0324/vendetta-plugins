@@ -98,6 +98,7 @@ export default tseslint.config(
             "@typescript-eslint/no-useless-empty-export": "error",
             "@typescript-eslint/prefer-find": "error",
             "@typescript-eslint/prefer-namespace-keyword": "off",
+            "@typescript-eslint/prefer-nullish-coalescing": ["error", { ignoreConditionalTests: true }],
             "@typescript-eslint/restrict-template-expressions": "off",
             "eslint-plugin-simple-import-sort/exports": "error",
             "eslint-plugin-simple-import-sort/imports": ["error", {
