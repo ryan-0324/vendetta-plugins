@@ -1,8 +1,8 @@
-import type { FlashList as _FlashList } from "@shopify/flash-list";
+import type { FlashList as $FlashList } from "@shopify/flash-list";
 import { findByName, findByProps } from "@vendetta/metro";
 import type { ComponentType } from "react";
 import type { PressableProps } from "react-native";
-import type { Path as _Path, Svg as _Svg } from "react-native-svg";
+import type { Path as $Path, Svg as $Svg } from "react-native-svg";
 
 export * from "./Builder";
 export * from "./BuilderButton";
@@ -12,14 +12,17 @@ export * from "./Icon";
 export * from "./StaticEffect";
 export * from "./Text";
 
-export const FlashList: typeof _FlashList = findByName("FlashList") ?? (() => null);
+export const FlashList: typeof $FlashList = findByName("FlashList") ?? (() => null);
 
-const svgModule: any = findByProps("Svg");
-export const Svg: typeof _Svg = svgModule?.Svg ?? (() => null);
-export const Path: typeof _Path = svgModule?.Path ?? (() => null);
+// Must use `as` or else `undefined` is lost due to a TS bug
+const svgModule = findByProps("Svg") as Record<string, any> | undefined;
+export const Svg: typeof $Svg = svgModule?.Svg ?? (() => null);
+export const Path: typeof $Path = svgModule?.Path ?? (() => null);
 
 export interface PressableOpacityProps extends PressableProps {
     activeOpacity?: number | undefined;
 }
 
-export const PressableOpacity: ComponentType<PressableOpacityProps> = (findByProps("PressableOpacity") as any)?.PressableOpacity ?? (() => null);
+export const PressableOpacity: ComponentType<PressableOpacityProps>
+    = (findByProps("PressableOpacity") as Record<string, any> | undefined)?.PressableOpacity
+    ?? (() => null);

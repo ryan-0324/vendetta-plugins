@@ -1,8 +1,5 @@
 name: Build and deploy
-on:
-    push:
-        branches:
-          - main
+on: workflow_dispatch
 
 jobs:
     build-and-deploy:
@@ -14,16 +11,17 @@ jobs:
           - name: Checkout repository
             uses: actions/checkout@v4
 
-          - name: Setup node
+          - name: Install pnpm
+            uses: pnpm/action-setup@v4
+
+          - name: Install Node.js 20
             uses: actions/setup-node@v4
             with:
-                node-version: ">=18.0.0"
-
-          - name: Install pnpm
-            run: npm i -g pnpm
+                node-version: ^20.9.0
+                cache: pnpm
 
           - name: Install dependencies
-            run: pnpm m i
+            run: pnpm install --frozen-lockfile
 
           - name: Build plugin(s)
             run: pnpm build

@@ -1,5 +1,22 @@
+import type { ExtractAction, FluxAction, FluxStore } from "@vencord/discord-types";
 import { findByStoreName } from "@vendetta/metro";
 import type tinycolor from "tinycolor2";
+
+export const CollectiblesPurchaseStore: $CollectiblesPurchaseStore
+    = findByStoreName("CollectiblesPurchaseStore");
+
+export type CollectiblesPurchaseStoreAction = ExtractAction<FluxAction, "COLLECTIBLES_CLAIM" | "COLLECTIBLES_CLAIM_FAILURE" | "COLLECTIBLES_CLAIM_SUCCESS" | "COLLECTIBLES_PURCHASES_FETCH" | "COLLECTIBLES_PURCHASES_FETCH_FAILURE" | "COLLECTIBLES_PURCHASES_FETCH_SUCCESS" | "LOGOUT">;
+
+declare class $CollectiblesPurchaseStore extends FluxStore<CollectiblesPurchaseStoreAction> {
+    static displayName: "CollectiblesPurchaseStore";
+
+    get claimError(): Error | undefined;
+    get fetchError(): Error | undefined;
+    getPurchase(skuId: string | null | undefined): Purchase | undefined;
+    get isClaiming(): boolean;
+    get isFetching(): boolean;
+    get purchases(): Map<string, Purchase>;
+}
 
 export interface Purchase {
     banner: string;
@@ -36,12 +53,3 @@ export interface Purchase {
     type: number;
     unpublishedAt: Date | null;
 }
-
-export const CollectiblesPurchaseStore: {
-    readonly isFetching: boolean; // Getter
-    readonly isClaiming: boolean; // Getter
-    readonly purchases: Map<string, Purchase>; // Getter
-    readonly fetchError: Error | undefined; // Getter
-    readonly claimError: Error | undefined; // Getter
-    getPurchase: (skuId: string | null | undefined) => Purchase | undefined;
-} = findByStoreName("CollectiblesPurchaseStore");

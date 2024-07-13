@@ -1,11 +1,11 @@
 import React from "react";
 import { Image, View, type ViewProps } from "react-native";
 
-import { type ProfileEffect } from "@lib/stores";
+import type { ProfileEffectConfig } from "@lib/stores";
 import { PROFILE_EFFECT_WH_RATIO, SAMPLE_PROFILE_SMALL } from "@ui/assets";
 
 export interface StaticEffectProps {
-    effect: ProfileEffect["config"];
+    effect: ProfileEffectConfig;
     style?: ViewProps["style"];
 }
 

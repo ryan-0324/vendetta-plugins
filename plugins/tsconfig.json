@@ -1,0 +1,22 @@
+{
+    "include": ["**/*", "../node_modules/vendetta-types/*.d.ts"],
+
+    "compilerOptions": {
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true,
+        "noUncheckedIndexedAccess": true,
+        "strict": true,
+
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "resolveJsonModule": true,
+        "typeRoots": ["../node_modules/@types"],
+        "types": ["lodash", "react", "react-native", "tinycolor2"],
+
+        "importHelpers": true,
+        "noEmit": true,
+
+        "jsx": "react",
+        "target": "ESNext"
+    }
+}

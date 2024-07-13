@@ -1,31 +1,41 @@
 {
     "private": true,
-    "type": "module",
     "scripts": {
         "build": "rollup --config rollup.config.ts --configPlugin swc3 --filterLogs !code:MISSING_NAME_OPTION_FOR_IIFE_EXPORT",
-        "watch": "rollup --config rollup.config.ts --configPlugin swc3 --filterLogs !code:MISSING_NAME_OPTION_FOR_IIFE_EXPORT --watch"
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "test": "pnpm test-ts && pnpm lint",
+        "test-ts": "tsc --noEmit",
+        "watch": "pnpm build --watch"
     },
     "devDependencies": {
-        "@eslint/js": "^8.57.0",
+        "@eslint/js": "^9.6.0",
         "@react-native-clipboard/clipboard": "^1.14.1",
         "@rollup/plugin-terser": "^0.4.4",
-        "@shopify/flash-list": "^1.6.4",
-        "@stylistic/eslint-plugin": "^2.1.0",
+        "@shopify/flash-list": "^1.7.0",
+        "@stylistic/eslint-plugin": "^2.3.0",
         "@swc/helpers": "^0.5.11",
         "@types/eslint__js": "^8.42.3",
-        "@types/lodash": "~4.17.0",
-        "@types/react": "~18.2.0",
-        "@types/react-native": "~0.72.0",
+        "@types/lodash": "~4.17.6",
+        "@types/node": "^20.14.10",
+        "@types/react": "~18.2.79",
+        "@types/react-native": "~0.72.8",
         "@types/tinycolor2": "^1.4.6",
-        "eslint": "^8.57.0",
-        "eslint-plugin-simple-import-sort": "^12.1.0",
-        "react-native-svg": "^15.2.0",
-        "rollup": "^4.17.2",
+        "@vencord/discord-types": "github:ryan-0324/Vencord#e45d0bc8ab49a6bf61cb4ec774ccfffc3ea8d94f&path:packages/discord-types",
+        "eslint": "^9.6.0",
+        "eslint-plugin-simple-import-sort": "^12.1.1",
+        "react-native-svg": "^15.4.0",
+        "rollup": "^4.18.1",
         "rollup-plugin-swc3": "^0.11.2",
-        "typescript": "^5.4.5",
-        "typescript-eslint": "^7.8.0",
+        "typescript": "^5.5.3",
+        "typescript-eslint": "^8.0.0-alpha.41",
         "vendetta-types": "latest"
     },
+    "engines": {
+        "node": ">=20.9.0",
+        "pmpm": ">=9"
+    },
+    "packageManager": "pnpm@9.5.0",
     "pnpm": {
         "overides": {
             "@react-native-clipboard/clipboard": "$@react-native-clipboard/clipboard",
@@ -33,14 +43,8 @@
             "@types/react": "$@types/react",
             "@types/react-native": "$@types/react-native"
         },
-        "peerDependencyRules": {
-            "ignoreMissing": [
-                "react",
-                "react-native"
-            ]
+        "patchedDependencies": {
+            "@vencord/discord-types@1.0.0": "patches/@vencord__discord-types@1.0.0.patch"
         }
-    },
-    "engines": {
-        "node": ">=18.0.0"
     }
 }

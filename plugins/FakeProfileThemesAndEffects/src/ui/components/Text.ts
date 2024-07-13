@@ -14,4 +14,6 @@ export interface TextProps extends RNTextProps {
     animated?: boolean | undefined;
 }
 
-export const Text: ComponentType<TextProps> = (findByProps("TextStyleSheet") as any)?.Text ?? (() => null);
+export const Text: ComponentType<TextProps>
+    = (findByProps("TextStyleSheet") as Record<string, any> | undefined)?.Text
+    ?? (() => null);

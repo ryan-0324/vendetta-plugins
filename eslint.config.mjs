@@ -4,13 +4,15 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
+    { ignores: ["dist/**/*"] },
     {
-        ignores: ["dist/**"],
+        files: ["**/*.?(c|m)[jt]s?(x)"],
         languageOptions: {
             parser: tseslint.parser,
-            parserOptions: { project: true }
+            parserOptions: { projectService: true }
         },
         plugins: {
+            // @ts-expect-error: https://github.com/eslint-stylistic/eslint-stylistic/issues/398#issuecomment-2178212946
             "@stylistic": stylistic,
             "@typescript-eslint": tseslint.plugin,
             "eslint-plugin-simple-import-sort": simpleImportSort
@@ -52,7 +54,7 @@ export default tseslint.config(
             "@stylistic/no-extra-semi": "error",
             "@stylistic/no-mixed-operators": "off",
             "@stylistic/no-multi-spaces": ["error", { exceptions: { Property: false } }],
-            "@stylistic/object-curly-newline": ["error", { multiline: true }],
+            "@stylistic/object-curly-newline": "error",
             "@stylistic/one-var-declaration-per-line": "error",
             "@stylistic/quote-props": ["error", "as-needed"],
             "@stylistic/quotes": ["error", "double", {
@@ -65,6 +67,8 @@ export default tseslint.config(
             "@stylistic/wrap-iife": ["error", "inside", { functionPrototypeMethods: true }],
             "@stylistic/yield-star-spacing": "error",
             "@typescript-eslint/class-literal-property-style": "off",
+            "@typescript-eslint/consistent-type-exports": ["error", { fixMixedExportsWithInlineTypeSpecifier: true }],
+            "@typescript-eslint/consistent-type-imports": ["error", { fixStyle: "inline-type-imports" }],
             "@typescript-eslint/default-param-last": "error",
             "@typescript-eslint/method-signature-style": "error",
             "@typescript-eslint/no-array-delete": "off",
@@ -72,6 +76,7 @@ export default tseslint.config(
             "@typescript-eslint/no-dynamic-delete": "off",
             "@typescript-eslint/no-explicit-any": "off",
             "@typescript-eslint/no-floating-promises": "off",
+            "@typescript-eslint/no-import-type-side-effects": "error",
             "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: false }],
             "@typescript-eslint/no-namespace": "off",
             "@typescript-eslint/no-non-null-assertion": "off",
@@ -103,12 +108,12 @@ export default tseslint.config(
             "@typescript-eslint/prefer-namespace-keyword": "off",
             "@typescript-eslint/prefer-nullish-coalescing": ["error", { ignoreConditionalTests: true }],
             "@typescript-eslint/restrict-template-expressions": "off",
+            "@typescript-eslint/return-await": "error",
             "eslint-plugin-simple-import-sort/exports": "error",
             "eslint-plugin-simple-import-sort/imports": ["error", {
                 groups: [
-                    ["^((node:)?(assert|dns|fs|path|readline|stream|timers|util)|node:test)(/|$)|^((node:)?(async_hooks|buffer|child_process|cluster|console|constants|crypto|dgram|diagnostics_channel|domain|events|http|http2|https|inspector|module|net|os|perf_hooks|process|punycode|querystring|repl|string_decoder|tls|trace_events|tty|url|v8|vm|wasi|worker_threads|zlib)|node:sea)$"],
-                    ["^@(vendetta|eslint|react-native-clipboard|rollup|shopify|stylistic)(/|$)|^[^@.]"],
-                    ["^[@.]"]
+                    ["^((node:)?(assert(/strict)?|async_hooks|buffer|child_process|cluster|console|constants|crypto|dgram|diagnostics_channel|dns(/promises)?|domain|events|fs(/promises)?|http|http2|https|module|net|os|path(/(posix|win32))?|perf_hooks|process|punycode|querystring|readline(/promises)?|repl|stream(/(consumers|promises|web))?|string_decoder|timers(/promises)?|tls|trace_events|tty|url|util(/types)?|v8|vm|wasi|worker_threads|zlib)|node:test(/reporters)?)$"],
+                    ["^@(vendetta|vencord|eslint|react-native-clipboard|rollup|shopify|stylistic)(/|$)|^[^@.]"],
                 ]
             }],
             "array-callback-return": ["error", { checkForEach: true }],
@@ -134,7 +139,6 @@ export default tseslint.config(
             "no-new-wrappers": "error",
             "no-object-constructor": "error",
             "no-proto": "error",
-            "no-restricted-globals": ["error", "document", "JSX", "React"],
             "no-restricted-properties": ["error", {
                 object: "window",
                 property: "document"
@@ -158,26 +162,26 @@ export default tseslint.config(
             "prefer-rest-params": "error",
             "prefer-spread": "error",
             radix: ["error", "as-needed"],
-            yoda: ["error", "never", { exceptRange: true }]
+            yoda: ["error", "never", { exceptRange: true }],
         }
     },
     {
-        files: ["plugins/**"],
+        files: ["plugins/**/*"],
         rules: {
+            "no-restricted-globals": ["error", "_", "JSX", "NodeJS", "React", "tinycolor"],
             "no-restricted-imports": ["error", {
-                paths: ["assert", "async_hooks", "buffer", "child_process", "cluster", "console", "constants", "crypto", "dgram", "diagnostics_channel", "dns", "domain", "events", "fs", "http", "http2", "https", "inspector", "module", "net", "os", "path", "perf_hooks", "process", "punycode", "querystring", "readline", "repl", "stream", "string_decoder", "timers", "tls", "trace_events", "tty", "url", "util", "v8", "vm", "wasi", "worker_threads", "zlib", "node:assert", "node:async_hooks", "node:buffer", "node:child_process", "node:cluster", "node:console", "node:constants", "node:crypto", "node:dgram", "node:diagnostics_channel", "node:dns", "node:domain", "node:events", "node:fs", "node:http", "node:http2", "node:https", "node:inspector", "node:module", "node:net", "node:os", "node:path", "node:perf_hooks", "node:process", "node:punycode", "node:querystring", "node:readline", "node:repl", "node:sea", "node:stream", "node:string_decoder", "node:test", "node:timers", "node:tls", "node:trace_events", "node:tty", "node:url", "node:util", "node:v8", "node:vm", "node:wasi", "node:worker_threads", "node:zlib"],
-                patterns: ["assert/*", "dns/*", "fs/*", "path/*", "readline/*", "stream/*", "timers/*", "util/*", "node:assert/*", "node:dns/*", "node:fs/*", "node:path/*", "node:readline/*", "node:stream/*", "node:test/*", "node:timers/*", "node:util/*"]
+                paths: ["assert", "node:assert", "assert/strict", "node:assert/strict", "async_hooks", "node:async_hooks", "buffer", "node:buffer", "child_process", "node:child_process", "cluster", "node:cluster", "console", "node:console", "constants", "node:constants", "crypto", "node:crypto", "dgram", "node:dgram", "diagnostics_channel", "node:diagnostics_channel", "dns", "node:dns", "dns/promises", "node:dns/promises", "domain", "node:domain", "events", "node:events", "fs", "node:fs", "fs/promises", "node:fs/promises", "http", "node:http", "http2", "node:http2", "https", "node:https", "module", "node:module", "net", "node:net", "os", "node:os", "path", "node:path", "path/posix", "node:path/posix", "path/win32", "node:path/win32", "perf_hooks", "node:perf_hooks", "process", "node:process", "punycode", "node:punycode", "querystring", "node:querystring", "readline", "node:readline", "readline/promises", "node:readline/promises", "repl", "node:repl", "stream", "node:stream", "stream/consumers", "node:stream/consumers", "stream/promises", "node:stream/promises", "stream/web", "node:stream/web", "string_decoder", "node:string_decoder", "node:test", "node:test/reporters", "timers", "node:timers", "timers/promises", "node:timers/promises", "tls", "node:tls", "trace_events", "node:trace_events", "tty", "node:tty", "url", "node:url", "util", "node:util", "util/types", "node:util/types", "v8", "node:v8", "vm", "node:vm", "wasi", "node:wasi", "worker_threads", "node:worker_threads", "zlib", "node:zlib"],
             }],
             "no-restricted-syntax": ["error",
                 {
-                    selector: "ArrowFunctionExpression[async=true]",
+                    selector: ":function[async=true]",
                     message: "Hermes does not support async arrow functions, and build output size would increase if `transform-arrow-functions` were included."
                 },
                 {
                     selector: "AwaitExpression:not(:function *)",
                     message: "Hermes does not support top-level await, and SWC cannot transform it."
                 }
-            ]
+            ],
         }
     }
 );

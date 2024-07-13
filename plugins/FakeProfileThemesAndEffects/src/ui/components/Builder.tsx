@@ -3,7 +3,7 @@ import React, { useMemo, useState } from "react";
 import { View } from "react-native";
 
 import { buildFPTE } from "@lib/fpte";
-import { type ProfileEffect, UserStore } from "@lib/stores";
+import { type ProfileEffectConfig, UserStore } from "@lib/stores";
 import { useAccentColor, usePrimaryColor, useShowPreview } from "@patches/patchUseProfileTheme";
 import { showColorPicker, showEffectPicker } from "@ui/actionSheets";
 import { resolveSemanticColor, semanticColors, useAvatarColors, useThemeContext } from "@ui/color";
@@ -18,7 +18,7 @@ export interface BuilderProps {
 export function Builder({ guildId }: BuilderProps) {
     const [primaryColor, setPrimaryColor] = usePrimaryColor(null);
     const [accentColor, setAccentColor] = useAccentColor(null);
-    const [effect, setEffect] = useState<ProfileEffect["config"] | null>(null);
+    const [effect, setEffect] = useState<ProfileEffectConfig | null>(null);
     const [preview, setPreview] = useShowPreview(true);
     const [buildLegacy, setBuildLegacy] = useState(false);
 
@@ -27,7 +27,11 @@ export function Builder({ guildId }: BuilderProps) {
         resolveSemanticColor(theme, semanticColors.HEADER_SECONDARY!),
         resolveSemanticColor(theme, semanticColors.BACKGROUND_ACCENT!)
     ], [theme]);
-    const avatarColors = useAvatarColors(UserStore.getCurrentUser()!.getAvatarURL(guildId, 80), fillerColor, false);
+    const avatarColors = useAvatarColors(
+        UserStore.getCurrentUser()!.getAvatarURL(guildId, 80),
+        fillerColor,
+        false
+    );
 
     return (
         <FormCardSection

@@ -8,12 +8,14 @@ import { Builder } from "@ui/components";
 
 const funcParent = findByName("UserProfileEditForm", false);
 
-export const patchUserProfileEditForm = () => after("default", funcParent, (_args, tree: RN.Node) => {
+export const patchUserProfileEditForm = () => after("default", funcParent, (_args: unknown[], tree: RN.Node) => {
     if (storage.hideBuilder) return tree;
-    const parent = findParentInTree(tree, children =>
+
+    const parent = findParentInTree(tree, (children): children is RN.Node[] =>
         Array.isArray(children) && children.some(child =>
             isElement(child) && getComponentNameFromType(child.type) === "EditUserProfileBio"));
     if (parent)
-        (parent.props.children as RN.Node[]).splice(2, 0, <Builder />);
+        parent.props.children.splice(2, 0, <Builder />);
+
     return tree;
 });

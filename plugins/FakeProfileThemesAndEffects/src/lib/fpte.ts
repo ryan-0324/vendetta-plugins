@@ -188,7 +188,7 @@ export function extractFPTE(str: string) {
         // If the current character is not a delimiter but a valid FPTE
         // character, it will be added to the current index of fpte.
         else if (cp >= STARTING_CODEPOINT && cp <= ENDING_CODEPOINT)
-            fpte[i] += String.fromCodePoint(cp - STARTING_CODEPOINT);
+            fpte[i]! += String.fromCodePoint(cp - STARTING_CODEPOINT);
         // If an FPTE string has been found and its end has been reached, then the extraction is done.
         else if (i > 0 || fpte[0]) break;
     }

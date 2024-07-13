@@ -12,4 +12,4 @@ export interface IconProps extends Pick<ImageProps, "accessible" | "accessibilit
 
 export const Icon: ComponentType<IconProps> & {
     Sizes: Record<SizeKey, string>;
-} = (findByProps("IconSizes") as any)?.default ?? (() => null);
+} = (findByProps("IconSizes") as Record<string, any> | undefined)?.default ?? (() => null);

@@ -1,23 +1,21 @@
 {
-    "include": ["**/*", "node_modules/vendetta-types/*.d.ts"],
-    "exclude": ["dist"],
+    "exclude": ["dist", "src"],
 
     "compilerOptions": {
-        "noImplicitOverride": true,
         "noUncheckedIndexedAccess": true,
         "strict": true,
 
-        "module": "esnext",
-        "moduleResolution": "bundler",
-        "resolveJsonModule": true,
+        "module": "NodeNext",
+        "typeRoots": ["./node_modules/@types"],
+        "types": ["eslint__js", "node"],
 
-        "importHelpers": true,
         "noEmit": true,
 
         "allowJs": true,
         "checkJs": true,
 
-        "jsx": "react",
-        "target": "esnext"
+        "target": "ESNext",
+
+        "skipLibCheck": true
     }
 }

@@ -1,4 +1,4 @@
-import { Button as _Button } from "@vendetta/ui/components";
+import { Button as $Button } from "@vendetta/ui/components";
 import type { ComponentType } from "react";
 import type { PressableProps, TextProps } from "react-native";
 
@@ -23,4 +23,4 @@ export const Button: ComponentType<ButtonProps> & {
     Looks: StringDict<ButtonLook>;
     Colors: StringDict<ButtonColor>;
     Sizes: StringDict<ButtonSize>;
-} = _Button as any;
+} = $Button as any;

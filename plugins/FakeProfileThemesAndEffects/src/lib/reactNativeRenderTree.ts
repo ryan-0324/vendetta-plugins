@@ -63,7 +63,7 @@ export namespace RN {
 }
 
 export function isElement(arg: RN.Node): arg is RN.Element {
-    return isNonNullObject(arg) && "type" in (arg as RN.Element);
+    return isNonNullObject(arg) && "type" in arg;
 }
 
 export function isElementWithChildren<T extends RN.Element>(arg: T | RN.Element<RN.PropsWithChildren>): arg is RN.Element<RN.PropsWithChildren> {
@@ -101,7 +101,21 @@ export function getComponentNameFromType(type: RN.ElementType) {
 }
 /* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
 
-export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) => unknown, maxDepth = 200): RN.Element | null {
+export function findElementInTree<T extends RN.Element>(
+    tree: RN.Node,
+    filter: (element: RN.Element) => element is T,
+    maxDepth?: number | undefined
+): T | null;
+export function findElementInTree(
+    tree: RN.Node,
+    filter: (element: RN.Element) => unknown,
+    maxDepth?: number | undefined
+): RN.Element | null;
+export function findElementInTree(
+    tree: RN.Node,
+    filter: (element: RN.Element) => unknown,
+    maxDepth = 200
+): RN.Element | null {
     if (isNonNullObject(tree)) {
         if (isIterable(tree)) {
             if (maxDepth > 0) {
@@ -119,7 +133,21 @@ export function findElementInTree(tree: RN.Node, filter: (element: RN.Element) =
     return null;
 }
 
-export function findParentInTree(tree: RN.Node, filter: (children: RN.Node) => unknown, maxDepth = 200): RN.Element<RN.PropsWithChildren> | null {
+export function findParentInTree<T extends RN.Node>(
+    tree: RN.Node,
+    filter: (children: RN.Node) => children is T,
+    maxDepth?: number | undefined
+): RN.Element<{ children: T; }> | null;
+export function findParentInTree(
+    tree: RN.Node,
+    filter: (children: RN.Node) => unknown,
+    maxDepth?: number | undefined
+): RN.Element<RN.PropsWithChildren> | null;
+export function findParentInTree(
+    tree: RN.Node,
+    filter: (children: RN.Node) => unknown,
+    maxDepth = 200
+): RN.Element<RN.PropsWithChildren> | null {
     if (isNonNullObject(tree)) {
         if (isIterable(tree)) {
             if (maxDepth > 0) {

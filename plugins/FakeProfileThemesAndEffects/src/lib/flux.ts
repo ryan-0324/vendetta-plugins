@@ -1,7 +1,4 @@
-import { FluxDispatcher as _FluxDispatcher } from "@vendetta/metro/common";
+import type { FluxDispatcher as $FluxDispatcher } from "@vencord/discord-types";
+import { FluxDispatcher as Dispatcher } from "@vendetta/metro/common";
 
-export const FluxDispatcher: {
-    dispatch: (payload: { type?: string | undefined; } & Record<PropertyKey, any>) => Promise<any>;
-    subscribe: (type?: string | undefined, onDispatch?: ((payload: any) => void) | undefined) => void;
-    unsubscribe: (type?: string | undefined, onDispatch?: ((payload: any) => void) | undefined) => void;
-} = _FluxDispatcher as any;
+export const FluxDispatcher = Dispatcher as $FluxDispatcher;

@@ -1,0 +1,16 @@
+diff --git a/src/general/UserProfile.ts b/src/general/UserProfile.ts
+index 95298f3e3c7c77a200e93504f61af4e869acff79..1db12d1f306ba410b9ad699f0f4a1b1032cabe64 100644
+--- a/src/general/UserProfile.ts
++++ b/src/general/UserProfile.ts
+@@ -27,7 +27,10 @@ export interface UserProfileFetchSucceeded {
+     premiumGuildSince: Date | null;
+     premiumSince: Date | null;
+     premiumType: UserPremiumType | Nullish;
+-    profileEffectId: string | undefined;
++    /** Only present in newer versions. */
++    profileEffectId?: string | undefined;
++    /** Only present in older versions. */
++    profileEffectID?: string | undefined;
+     profileFetchFailed: false;
+     pronouns: string;
+     themeColors: ProfileThemeColors | Nullish;

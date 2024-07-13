@@ -1,10 +1,11 @@
+import type { UserProfile } from "@vencord/discord-types";
 import { after } from "@vendetta/patcher";
 import { storage } from "@vendetta/plugin";
 
 import { decodeColor, decodeColorsLegacy, decodeEffect, extractFPTE } from "@lib/fpte";
-import { type UserProfile, UserProfileStore } from "@lib/stores";
+import { UserProfileStore } from "@lib/stores";
 
-function updateProfileThemeColors(profile: UserProfile, primary: number, accent: number) {
+function updateProfileThemeColors(profile: UserProfile<false>, primary: number, accent: number) {
     if (primary > -1) {
         profile.themeColors = [primary, accent > -1 ? accent : primary];
         profile.premiumType = 2;
@@ -14,15 +15,15 @@ function updateProfileThemeColors(profile: UserProfile, primary: number, accent:
     }
 }
 
-function updateProfileEffectId(profile: UserProfile, id: bigint) {
+function updateProfileEffectId(profile: UserProfile<false>, id: bigint) {
     if (id > -1n) {
         profile.profileEffectId = profile.profileEffectID = id.toString();
         profile.premiumType = 2;
     }
 }
 
-export const patchGetUserProfile = () => after("getUserProfile", UserProfileStore, (_args, profile: UserProfile | undefined) => {
-    if (!profile) return profile;
+export const patchGetUserProfile = () => after("getUserProfile", UserProfileStore, (_args: unknown[], profile: UserProfile | undefined) => {
+    if (!profile || profile.profileFetchFailed) return profile;
 
     if (storage.prioritizeNitro) {
         if (profile.themeColors) {

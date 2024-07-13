@@ -8,10 +8,11 @@ import { Builder } from "@ui/components";
 
 const funcParent = findByName("GuildProfileEditForm", false);
 
-export const patchGuildProfileEditForm = () => after("default", funcParent, (_args, tree: RN.Node) => {
+export const patchGuildProfileEditForm = () => after("default", funcParent, (_args: unknown[], tree: RN.Node) => {
     if (storage.hideBuilder) return tree;
+
     let guildId: string | undefined;
-    const parent = findParentInTree(tree, children =>
+    const parent = findParentInTree(tree, (children): children is RN.Node[] =>
         Array.isArray(children) && children.some(child => {
             if (isElement(child) && getComponentNameFromType(child.type) === "EditGuildIdentityBio") {
                 guildId = (child.props as any).displayProfile?.guildId;
@@ -20,6 +21,7 @@ export const patchGuildProfileEditForm = () => after("default", funcParent, (_ar
             return false;
         }));
     if (parent)
-        (parent.props.children as RN.Node[]).splice(2, 0, <Builder guildId={guildId} />);
+        parent.props.children.splice(2, 0, <Builder guildId={guildId} />);
+
     return tree;
 });

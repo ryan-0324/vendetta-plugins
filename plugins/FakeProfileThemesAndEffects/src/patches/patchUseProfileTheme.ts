@@ -1,9 +1,10 @@
+import type { ProfileBadge, ProfileThemeColors, UserProfile, UserRecord } from "@vencord/discord-types";
 import { findByName } from "@vendetta/metro";
 import { after } from "@vendetta/patcher";
 import { useState } from "react";
 
 import { FluxDispatcher } from "@lib/flux";
-import type { ProfileEffect, User, UserProfile } from "@lib/stores";
+import type { ProfileEffectConfig } from "@lib/stores";
 import { getProfileTheme, type Theme } from "@ui/color";
 
 function updatePreview() {
@@ -46,7 +47,9 @@ export function useAccentColor(initialState: typeof accentColor) {
     ] as const;
 }
 
-let profileEffect: ProfileEffect["config"] | null = null;
+// TEMP
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let profileEffect: ProfileEffectConfig | null = null;
 export function useProfileEffect(initialState: typeof profileEffect) {
     const [state, setState] = useState(() => profileEffect = initialState);
     return [
@@ -64,7 +67,57 @@ export function setPreviewUserId(userId: typeof previewUserId) {
     previewUserId = userId;
 }
 
-interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "bio" | "popoutAnimationParticleType" | "profileEffectId" | "pronouns" | "themeColors" | "userId"> {
+export const patchUseProfileTheme = (() => {
+    let funcParent = findByName("useProfileTheme", false);
+    if (funcParent)
+        return () => after(
+            "default",
+            funcParent,
+            (([props]: UseProfileThemeArgs, profileTheme: UseProfileThemeRet) => {
+                const { user } = props;
+                if (
+                    (user != null && user.id === previewUserId
+                    || "pendingThemeColors" in props)
+                    && showPreview
+                ) {
+                    if (primaryColor !== null) {
+                        profileTheme.theme = getProfileTheme(primaryColor);
+                        profileTheme.primaryColor = primaryColor;
+                        profileTheme.secondaryColor = accentColor ?? primaryColor;
+                    } else if (accentColor !== null) {
+                        profileTheme.theme = getProfileTheme(accentColor);
+                        profileTheme.primaryColor = accentColor;
+                        profileTheme.secondaryColor = accentColor;
+                    }
+                }
+                return profileTheme;
+            }) as any
+        );
+
+    funcParent = findByName("useProfileThemeColors", false);
+    if (funcParent)
+        return () => after(
+            "default",
+            funcParent,
+            (([user, _displayProfile, previewProps]: UseProfileThemeColorsArgs, origRet: UseProfileThemeColorsRet) => {
+                if (
+                    (user != null && user.id === previewUserId
+                    || previewProps)
+                    && showPreview
+                ) {
+                    if (primaryColor !== null)
+                        return [primaryColor, accentColor ?? primaryColor];
+                    if (accentColor !== null)
+                        return [accentColor, accentColor];
+                }
+                return origRet;
+            }) as any
+        );
+
+    return () => () => true;
+})();
+
+interface DisplayProfile extends Pick<UserProfile<false>, "accentColor" | "banner" | "bio" | "popoutAnimationParticleType" | "profileEffectId" | "pronouns" | "themeColors" | "userId"> {
     _userProfile: UserProfile;
     _guildMemberProfile: UserProfile | null;
     guildId: string | undefined;
@@ -74,7 +127,7 @@ interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "b
     readonly canUsePremiumProfileCustomization: boolean; // Getter
     readonly premiumGuildSince: UserProfile["premiumGuildSince"]; // Getter
     readonly premiumSince: UserProfile["premiumSince"]; // Getter
-    readonly premiumType: UserProfile["premiumType"]; // Getter
+    readonly premiumType: UserProfile<false>["premiumType"]; // Getter
     readonly primaryColor: number | undefined; // Getter
     // __proto__ methods
     hasFullProfile: () => boolean;
@@ -83,7 +136,7 @@ interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "b
     isUsingGuildMemberBanner: () => boolean;
     isUsingGuildMemberBio: () => boolean;
     isUsingGuildMemberPronouns: () => boolean;
-    getBadges: () => UserProfile["badges"];
+    getBadges: () => ProfileBadge[];
     getBannerURL: (props: { canAnimate: boolean; size?: number; }) => string | undefined;
     getLegacyUsername: () => UserProfile["legacyUsername"];
     getPreviewBanner: (bannerURL: string | null | undefined, canAnimate: boolean, size?: number | undefined) => UserProfile["banner"];
@@ -91,75 +144,33 @@ interface DisplayProfile extends Pick<UserProfile, "accentColor" | "banner" | "b
         value: UserProfile["bio"];
         isUsingGuildValue: boolean;
     };
-    getPreviewThemeColors: (pendingThemeColors?: UserProfile["themeColors"] | undefined) => Exclude<UserProfile["themeColors"], undefined>;
+    getPreviewThemeColors: (pendingThemeColors?: ProfileThemeColors | undefined) => ProfileThemeColors;
 }
 
-type useProfileThemeArgs = [
+type UseProfileThemeArgs = [
     props: {
-        user?: User | null | undefined;
+        user?: UserRecord | null | undefined;
         displayProfile?: DisplayProfile | null | undefined;
-        pendingThemeColors: UserProfile["themeColors"] | undefined;
-        pendingAvatar?: User["avatar"] | null | undefined;
+        pendingThemeColors: ProfileThemeColors | undefined;
+        pendingAvatar?: UserRecord["avatar"] | undefined;
         isPreview?: boolean | null | undefined;
     }
 ];
 
-interface useProfileThemeRet {
+interface UseProfileThemeRet {
     theme: Theme;
     primaryColor: number | null;
     secondaryColor: number | null;
 }
 
-type useProfileThemeColorsArgs = [
-    user: User | null | undefined,
+type UseProfileThemeColorsArgs = [
+    user: UserRecord | null | undefined,
     displayProfile: DisplayProfile | null | undefined,
     previewProps?: {
-        pendingThemeColors: UserProfile["themeColors"] | undefined;
-        pendingAvatar?: User["avatar"] | null | undefined;
+        pendingThemeColors: ProfileThemeColors | undefined;
+        pendingAvatar?: UserRecord["avatar"] | undefined;
         isPreview?: boolean;
     } | undefined
 ];
 
-type useProfileThemeColorsRet = [number | null, number | null];
-
-export const patchUseProfileTheme = (() => {
-    let funcParent = findByName("useProfileTheme", false);
-    if (funcParent)
-        return () => after("default", funcParent, (([props]: useProfileThemeArgs, profileTheme: useProfileThemeRet) => {
-            const { user } = props;
-            if (
-                (user != null && user.id === previewUserId
-                || "pendingThemeColors" in props)
-                && showPreview
-            ) {
-                if (primaryColor !== null) {
-                    profileTheme.theme = getProfileTheme(primaryColor);
-                    profileTheme.primaryColor = primaryColor;
-                    profileTheme.secondaryColor = accentColor ?? primaryColor;
-                } else if (accentColor !== null) {
-                    profileTheme.theme = getProfileTheme(accentColor);
-                    profileTheme.primaryColor = accentColor;
-                    profileTheme.secondaryColor = accentColor;
-                }
-            }
-            return profileTheme;
-        }) as any);
-
-    funcParent = findByName("useProfileThemeColors", false);
-    if (funcParent)
-        return () => after("default", funcParent, (([user, _displayProfile, previewProps]: useProfileThemeColorsArgs, origRet: useProfileThemeColorsRet) => {
-            if (
-                (user != null && user.id === previewUserId
-                || previewProps)
-                && showPreview
-            ) {
-                if (primaryColor !== null)
-                    return [primaryColor, accentColor ?? primaryColor];
-                if (accentColor !== null)
-                    return [accentColor, accentColor];
-            }
-            return origRet;
-        }) as any);
-
-    return () => () => true;
-})();
+type UseProfileThemeColorsRet = [primaryColor: number | null, accentColor: number | null];

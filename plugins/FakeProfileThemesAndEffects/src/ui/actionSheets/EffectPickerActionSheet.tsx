@@ -1,18 +1,19 @@
+import type { UserRecord } from "@vencord/discord-types";
 import { findByName } from "@vendetta/metro";
 import { storage } from "@vendetta/plugin";
 import React, { type ReactElement, type ReactNode, useMemo } from "react";
 
 import { findElementInTree, findParentInTree, getComponentNameFromType, type RN } from "@lib/reactNativeRenderTree";
 import { ProfileEffectRecord } from "@lib/records";
-import type { ProfileEffect, User } from "@lib/stores";
+import type { ProfileEffect, ProfileEffectConfig } from "@lib/stores";
 import { setPreviewUserId } from "@patches/patchUseProfileTheme";
 import { FallbackEffectPickerActionSheet } from "@ui/actionSheets";
 import { ThemeContextProvider, useThemeContext } from "@ui/color";
 
 export interface EffectPickerActionSheetProps {
     effects: ProfileEffect[];
-    onSelect: (effect: ProfileEffect["config"] | null) => void;
-    user: User;
+    onSelect: (effect: ProfileEffectConfig | null) => void;
+    user: UserRecord;
     currentEffectId?: string | undefined;
 }
 
@@ -84,7 +85,7 @@ function PatchedEffectPickerActionSheet(props: EffectPickerActionSheetProps) {
     } else {
         if (effectPickerInner.props.selectedProfileEffect === undefined)
             effectPickerInner.props.setSelectedProfileEffect(currentEffectId
-                ? new ProfileEffectRecord({ id: currentEffectId })
+                ? new ProfileEffectRecord({ id: currentEffectId } as any)
                 : null);
         effectPickerInner.props.purchases = effectRecords;
     }

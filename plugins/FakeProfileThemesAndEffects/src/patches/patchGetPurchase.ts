@@ -6,5 +6,7 @@ import { previewUserId } from "@patches/patchUseProfileTheme";
 export const patchGetPurchase = () => instead(
     "getPurchase",
     CollectiblesPurchaseStore,
-    (args, origFunc) => previewUserId ? { purchasedAt: new Date() } : origFunc(args)
+    (args: unknown[], origFunc: (...args: any[]) => unknown) => previewUserId
+        ? { purchasedAt: new Date() }
+        : origFunc(args)
 );
