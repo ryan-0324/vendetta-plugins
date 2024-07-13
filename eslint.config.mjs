@@ -3,6 +3,8 @@ import stylistic from "@stylistic/eslint-plugin";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import tseslint from "typescript-eslint";
 
+const nodeModuleRE = /^((node:)?(assert(\/strict)?|async_hooks|buffer|child_process|cluster|console|constants|crypto|dgram|diagnostics_channel|dns(\/promises)?|domain|events|fs(\/promises)?|http|http2|https|module|net|os|path(\/(posix|win32))?|perf_hooks|process|punycode|querystring|readline(\/promises)?|repl|stream(\/(consumers|promises|web))?|string_decoder|timers(\/promises)?|tls|trace_events|tty|url|util(\/types)?|v8|vm|wasi|worker_threads|zlib)|node:test(\/reporters)?)$/;
+
 export default tseslint.config(
     { ignores: ["dist/**/*"] },
     {
@@ -112,7 +114,7 @@ export default tseslint.config(
             "eslint-plugin-simple-import-sort/exports": "error",
             "eslint-plugin-simple-import-sort/imports": ["error", {
                 groups: [
-                    ["^((node:)?(assert(/strict)?|async_hooks|buffer|child_process|cluster|console|constants|crypto|dgram|diagnostics_channel|dns(/promises)?|domain|events|fs(/promises)?|http|http2|https|module|net|os|path(/(posix|win32))?|perf_hooks|process|punycode|querystring|readline(/promises)?|repl|stream(/(consumers|promises|web))?|string_decoder|timers(/promises)?|tls|trace_events|tty|url|util(/types)?|v8|vm|wasi|worker_threads|zlib)|node:test(/reporters)?)$"],
+                    [nodeModuleRE.source],
                     ["^@(vendetta|vencord|eslint|react-native-clipboard|rollup|shopify|stylistic)(/|$)|^[^@.]"],
                 ]
             }],
@@ -168,10 +170,8 @@ export default tseslint.config(
     {
         files: ["plugins/**/*"],
         rules: {
+            "@typescript-eslint/no-restricted-imports": ["error", { patterns: [{ regex: nodeModuleRE.source }] }],
             "no-restricted-globals": ["error", "_", "JSX", "NodeJS", "React", "tinycolor"],
-            "no-restricted-imports": ["error", {
-                paths: ["assert", "node:assert", "assert/strict", "node:assert/strict", "async_hooks", "node:async_hooks", "buffer", "node:buffer", "child_process", "node:child_process", "cluster", "node:cluster", "console", "node:console", "constants", "node:constants", "crypto", "node:crypto", "dgram", "node:dgram", "diagnostics_channel", "node:diagnostics_channel", "dns", "node:dns", "dns/promises", "node:dns/promises", "domain", "node:domain", "events", "node:events", "fs", "node:fs", "fs/promises", "node:fs/promises", "http", "node:http", "http2", "node:http2", "https", "node:https", "module", "node:module", "net", "node:net", "os", "node:os", "path", "node:path", "path/posix", "node:path/posix", "path/win32", "node:path/win32", "perf_hooks", "node:perf_hooks", "process", "node:process", "punycode", "node:punycode", "querystring", "node:querystring", "readline", "node:readline", "readline/promises", "node:readline/promises", "repl", "node:repl", "stream", "node:stream", "stream/consumers", "node:stream/consumers", "stream/promises", "node:stream/promises", "stream/web", "node:stream/web", "string_decoder", "node:string_decoder", "node:test", "node:test/reporters", "timers", "node:timers", "timers/promises", "node:timers/promises", "tls", "node:tls", "trace_events", "node:trace_events", "tty", "node:tty", "url", "node:url", "util", "node:util", "util/types", "node:util/types", "v8", "node:v8", "vm", "node:vm", "wasi", "node:wasi", "worker_threads", "node:worker_threads", "zlib", "node:zlib"],
-            }],
             "no-restricted-syntax": ["error",
                 {
                     selector: ":function[async=true]",
