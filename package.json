@@ -21,7 +21,7 @@
         "@types/react": "~18.2.79",
         "@types/react-native": "~0.72.8",
         "@types/tinycolor2": "^1.4.6",
-        "@vencord/discord-types": "github:ryan-0324/Vencord#79da1d2d59ccc52037867883457c2198b9f1d51d&path:packages/discord-types",
+        "@vencord/discord-types": "github:ryan-0324/Vencord#057cd871143991e38dd2cc8c7dcb0e8470f532de&path:packages/discord-types",
         "eslint": "^9.7.0",
         "eslint-plugin-simple-import-sort": "^12.1.1",
         "react-native-svg": "^15.4.0",

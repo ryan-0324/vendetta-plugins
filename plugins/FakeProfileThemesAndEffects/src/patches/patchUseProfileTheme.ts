@@ -1,4 +1,4 @@
-import type { ProfileBadge, ProfileThemeColors, UserProfile, UserRecord } from "@vencord/discord-types";
+import type { DisplayProfile, ProfileThemeColors, UserRecord } from "@vencord/discord-types";
 import { findByName } from "@vendetta/metro";
 import { after } from "@vendetta/patcher";
 import { useState } from "react";
@@ -73,11 +73,11 @@ export const patchUseProfileTheme = (() => {
         return () => after(
             "default",
             funcParent,
-            (([props]: UseProfileThemeArgs, profileTheme: UseProfileThemeRet) => {
-                const { user } = props;
+            (([options]: [UseProfileThemeOptions], profileTheme: ProfileTheme) => {
+                const { user } = options;
                 if (
                     (user != null && user.id === previewUserId
-                    || "pendingThemeColors" in props)
+                    || "pendingThemeColors" in options)
                     && showPreview
                 ) {
                     if (primaryColor !== null) {
@@ -99,7 +99,7 @@ export const patchUseProfileTheme = (() => {
         return () => after(
             "default",
             funcParent,
-            (([user, _displayProfile, previewProps]: UseProfileThemeColorsArgs, origRet: UseProfileThemeColorsRet) => {
+            (([user, _displayProfile, previewProps]: UseProfileThemeColorsArgs, origRet: PartialProfileThemeColors) => {
                 if (
                     (user != null && user.id === previewUserId
                     || previewProps)
@@ -117,47 +117,15 @@ export const patchUseProfileTheme = (() => {
     return () => () => true;
 })();
 
-interface DisplayProfile extends Pick<UserProfile<false>, "accentColor" | "banner" | "bio" | "popoutAnimationParticleType" | "profileEffectId" | "pronouns" | "themeColors" | "userId"> {
-    _userProfile: UserProfile;
-    _guildMemberProfile: UserProfile | null;
-    guildId: string | undefined;
-    // __proto__ properties
-    readonly application: UserProfile["application"]; // Getter
-    readonly canEditThemes: boolean; // Getter
-    readonly canUsePremiumProfileCustomization: boolean; // Getter
-    readonly premiumGuildSince: UserProfile["premiumGuildSince"]; // Getter
-    readonly premiumSince: UserProfile["premiumSince"]; // Getter
-    readonly premiumType: UserProfile<false>["premiumType"]; // Getter
-    readonly primaryColor: number | undefined; // Getter
-    // __proto__ methods
-    hasFullProfile: () => boolean;
-    hasPremiumCustomization: () => boolean;
-    hasThemeColors: () => boolean;
-    isUsingGuildMemberBanner: () => boolean;
-    isUsingGuildMemberBio: () => boolean;
-    isUsingGuildMemberPronouns: () => boolean;
-    getBadges: () => ProfileBadge[];
-    getBannerURL: (props: { canAnimate: boolean; size?: number; }) => string | undefined;
-    getLegacyUsername: () => UserProfile["legacyUsername"];
-    getPreviewBanner: (bannerURL: string | null | undefined, canAnimate: boolean, size?: number | undefined) => UserProfile["banner"];
-    getPreviewBio: (bio: string | null | undefined) => {
-        value: UserProfile["bio"];
-        isUsingGuildValue: boolean;
-    };
-    getPreviewThemeColors: (pendingThemeColors?: ProfileThemeColors | undefined) => ProfileThemeColors;
+interface UseProfileThemeOptions {
+    user?: UserRecord | null | undefined;
+    displayProfile?: DisplayProfile | null | undefined;
+    pendingThemeColors: ProfileThemeColors | undefined;
+    pendingAvatar?: UserRecord["avatar"] | undefined;
+    isPreview?: boolean | null | undefined;
 }
 
-type UseProfileThemeArgs = [
-    props: {
-        user?: UserRecord | null | undefined;
-        displayProfile?: DisplayProfile | null | undefined;
-        pendingThemeColors: ProfileThemeColors | undefined;
-        pendingAvatar?: UserRecord["avatar"] | undefined;
-        isPreview?: boolean | null | undefined;
-    }
-];
-
-interface UseProfileThemeRet {
+interface ProfileTheme {
     theme: Theme;
     primaryColor: number | null;
     secondaryColor: number | null;
@@ -173,4 +141,4 @@ type UseProfileThemeColorsArgs = [
     } | undefined
 ];
 
-type UseProfileThemeColorsRet = [primaryColor: number | null, accentColor: number | null];
+type PartialProfileThemeColors = [primaryColor: number | null, accentColor: number | null];
